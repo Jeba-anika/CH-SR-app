@@ -1,0 +1,50 @@
+[
+  {
+    "shop_id": "6939538baba940665dc99447",
+    "customer_name": "Ray Montoya",
+    "shop_name": "AUTOGRATE",
+    "address": "888 Nautilus Avenue, Fruitdale, Virgin Islands, 9554",
+    "thana": "South Dakota",
+    "district": "Riceville"
+  },
+  {
+    "shop_id": "6939538b6bbce0a9cb822036",
+    "customer_name": "Etta Michael",
+    "shop_name": "TECHTRIX",
+    "address": "538 Newkirk Avenue, Bergoo, Indiana, 6862",
+    "thana": "Guam",
+    "district": "Hatteras"
+  },
+  {
+    "shop_id": "6939538bdf93f6333cbab58d",
+    "customer_name": "Noelle Duran",
+    "shop_name": "OBLIQ",
+    "address": "236 Ridge Court, Chapin, Mississippi, 6109",
+    "thana": "Michigan",
+    "district": "Eastmont"
+  },
+  {
+    "shop_id": "6939538b07231c907c530501",
+    "customer_name": "Michael Jefferson",
+    "shop_name": "INTERODEO",
+    "address": "304 Keen Court, Leroy, Illinois, 2757",
+    "thana": "New Hampshire",
+    "district": "Cartwright"
+  },
+  {
+    "shop_id": "6939538bf1a812f1466fa1bf",
+    "customer_name": "Lewis Wolfe",
+    "shop_name": "FLUMBO",
+    "address": "572 Conselyea Street, Condon, Federated States Of Micronesia, 8211",
+    "thana": "Kentucky",
+    "district": "Tioga"
+  },
+  {
+    "shop_id": "6939538b519adfab5a595eff",
+    "customer_name": "Velma Gonzalez",
+    "shop_name": "LOCAZONE",
+    "address": "978 Varanda Place, Yorklyn, Massachusetts, 1810",
+    "thana": "Texas",
+    "district": "Columbus"
+  }
+]
