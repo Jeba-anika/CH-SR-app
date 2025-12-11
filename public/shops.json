@@ -5,7 +5,8 @@
     "shop_name": "AUTOGRATE",
     "address": "888 Nautilus Avenue, Fruitdale, Virgin Islands, 9554",
     "thana": "South Dakota",
-    "district": "Riceville"
+    "district": "Riceville",
+    "phone_number": "555-1234"
   },
   {
     "shop_id": "6939538b6bbce0a9cb822036",
@@ -13,7 +14,8 @@
     "shop_name": "TECHTRIX",
     "address": "538 Newkirk Avenue, Bergoo, Indiana, 6862",
     "thana": "Guam",
-    "district": "Hatteras"
+    "district": "Hatteras",
+    "phone_number": "555-1234"
   },
   {
     "shop_id": "6939538bdf93f6333cbab58d",
@@ -21,7 +23,8 @@
     "shop_name": "OBLIQ",
     "address": "236 Ridge Court, Chapin, Mississippi, 6109",
     "thana": "Michigan",
-    "district": "Eastmont"
+    "district": "Eastmont",
+    "phone_number": "555-1234"
   },
   {
     "shop_id": "6939538b07231c907c530501",
@@ -29,7 +32,8 @@
     "shop_name": "INTERODEO",
     "address": "304 Keen Court, Leroy, Illinois, 2757",
     "thana": "New Hampshire",
-    "district": "Cartwright"
+    "district": "Cartwright",
+    "phone_number": "555-1234"
   },
   {
     "shop_id": "6939538bf1a812f1466fa1bf",
@@ -37,7 +41,8 @@
     "shop_name": "FLUMBO",
     "address": "572 Conselyea Street, Condon, Federated States Of Micronesia, 8211",
     "thana": "Kentucky",
-    "district": "Tioga"
+    "district": "Tioga",
+    "phone_number": "555-1234"
   },
   {
     "shop_id": "6939538b519adfab5a595eff",
@@ -45,6 +50,7 @@
     "shop_name": "LOCAZONE",
     "address": "978 Varanda Place, Yorklyn, Massachusetts, 1810",
     "thana": "Texas",
-    "district": "Columbus"
+    "district": "Columbus",
+    "phone_number": "555-1234"
   }
 ]

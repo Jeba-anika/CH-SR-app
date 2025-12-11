@@ -14,6 +14,7 @@ export function TBSShopSelect({
   const shopOptions = allShops?.map((shop) => ({
     value: shop.shop_id,
     label: shop.shop_name,
+    ...shop,
   }));
   return (
     <div className="form-control ">
