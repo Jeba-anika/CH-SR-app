@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { TBSShopSelect } from "./TBSShopSelect";
-import Select from "react-select/base";
+import { useEffect, useState } from "react";
 import TBSInput from "../../Components/Shared/TBSInput/TBSInput";
 import { useForm } from "react-hook-form";
 import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
@@ -12,13 +10,23 @@ const CreateOrder = () => {
   const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
   const [allProducts, setAllProducts] = useState();
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedProductQty, setSelectedProductQty] = useState(null);
+  const [grandTotalPrice, setGrandTotalPrice] = useState(null);
   const [selectedProductsList, setSelectedProductsList] = useState([]);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    watch,
+    setValue,
+    resetField,
+  } = useForm({
+    defaultValues: {
+      quantity: 1,
+      discount: 0,
+      price: 0,
+      subtotal: 0,
+    },
+  });
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,9 +48,6 @@ const CreateOrder = () => {
           ...product,
         }));
         setAllProducts(productOptions);
-
-        //
-        setSelectedProductsList(productOptions);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -50,20 +55,63 @@ const CreateOrder = () => {
 
     fetchData();
   }, []);
+
+  const quantity = watch("quantity");
+  const discount = watch("discount");
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    const qty = Number(quantity);
+    const disc = Number(discount);
+    const unitPrice = parseFloat(selectedProduct.price);
+    const subtotal = qty * unitPrice - disc;
+    setValue("subtotal", subtotal);
+  }, [selectedProduct, quantity, discount, setValue]);
+
   console.log(allProducts);
   console.log(selectedProduct);
 
-  const onSubmit = (data) => {
+  const onAddItemBtnClick = () => {
+    const orderList = [
+      ...selectedProductsList,
+      {
+        ...selectedProduct,
+        quantity: quantity,
+        discount: discount,
+        subtotal: watch("subtotal"),
+      },
+    ];
+    const grandTotal = orderList.reduce(
+      (total, product) => total + product.subtotal,
+      0
+    );
+    setGrandTotalPrice(grandTotal);
+    setSelectedProductsList(orderList);
+    setSelectedProduct(null);
+    resetField("quantity", { defaultValue: 1 });
+    resetField("discount", { defaultValue: 0 });
+    resetField("subtotal", { defaultValue: 0 });
+  };
+  const onDeleteItems = (productId) => {
+    const updatedList = selectedProductsList.filter(
+      (product) => product.product_id !== productId
+    );
+    const grandTotal = updatedList.reduce(
+      (total, product) => total + product.subtotal,
+      0
+    );
+    setGrandTotalPrice(grandTotal);
+    setSelectedProductsList(updatedList);
+  };
+  const onCreateOrder = (data) => {
     console.log(data);
   };
 
   return (
     <form>
       <div className="hero bg-base-200 min-h-screen">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="card bg-base-100 w-full  shrink-0 shadow-2xl"
-        >
+        <form className="card bg-base-100 w-full  shrink-0 shadow-2xl">
           <div className="card-body">
             <fieldset className="fieldset">
               <div className="card bg-base-100 w-full  shrink-0 shadow-xl">
@@ -111,6 +159,7 @@ const CreateOrder = () => {
                       </div>
                     )}
                     <div>
+                      {/* Order Here */}
                       <h3 className="text-center text-2xl">Order Here</h3>
                       <div className="grid grid-cols-5 gap-4 w-full">
                         <div className="col-span-3">
@@ -127,10 +176,14 @@ const CreateOrder = () => {
                           </label>
                           <input
                             type="number"
-                            className="input validator"
-                            required
-                            placeholder="Type a number "
-                            defaultValue={"1"}
+                            className="input "
+                            defaultValue={1}
+                            {...register("quantity", {
+                              required: {
+                                value: true,
+                                message: "Quantity is required",
+                              },
+                            })}
                           />
                         </div>
                         <div className="">
@@ -155,12 +208,9 @@ const CreateOrder = () => {
                         </label>
                         <input
                           type="number"
-                          className="input validator"
-                          required
-                          placeholder="Quantity"
-                          onChange={(e) =>
-                            setSelectedProductQty(e.target.value)
-                          }
+                          className="input "
+                          defaultValue={0}
+                          {...register("discount")}
                         />
                       </div>
                       <div className="">
@@ -169,23 +219,20 @@ const CreateOrder = () => {
                         </label>
                         <input
                           type="text"
-                          value={
-                            selectedProduct
-                              ? parseInt(selectedProduct?.price) *
-                                parseInt(selectedProductQty || 1)
-                              : "Total Amount"
-                          }
-                          className="input w-full"
+                          className="input "
                           disabled
+                          {...register("subtotal")}
                         />
                       </div>
                     </div>
-                    <TBSButton text={"Add Item"} />
+                    <TBSButton
+                      onClickFn={() => onAddItemBtnClick()}
+                      text={"Add Item"}
+                    />
 
                     {/* Products Table */}
                     <div className="overflow-x-auto">
                       <table className="table">
-                        {/* head */}
                         <thead>
                           <tr>
                             <th>Sl</th>
@@ -199,22 +246,36 @@ const CreateOrder = () => {
                         <tbody>
                           {selectedProductsList.map((product, index) => (
                             <tr key={product?.product_id}>
-                              <th>{index}</th>
+                              <th>{index + 1}</th>
                               <td>{product.product_name}</td>
-                              <td>Quantity</td>
+                              <td>{product.quantity}</td>
                               <td>{product.price}</td>
-                              <td>Discount</td>
-                              <td>Amount</td>
-                              <div className="text-center">
-                                <MdDelete className="cursor-pointer text-red-500" />
-                              </div>
+                              <td>{product.discount}</td>
+                              <td>{product.subtotal}</td>
+                              <td className="text-center  flex justify-center">
+                                <MdDelete
+                                  onClick={() =>
+                                    onDeleteItems(product.product_id)
+                                  }
+                                  className="cursor-pointer text-red-500"
+                                />
+                              </td>
                             </tr>
                           ))}
+                          <tr>
+                            <th colSpan={5} className="text-right">
+                              Grand Total
+                            </th>
+                            <td>{grandTotalPrice}</td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
 
-                    <TBSButton text={"Create Order"} />
+                    <TBSButton
+                      onClickFn={() => onCreateOrder()}
+                      text={"Create Order"}
+                    />
                   </fieldset>
                 </div>
               </div>
