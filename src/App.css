@@ -1,2 +1,17 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@layer components {
+  .custom-input {
+    @apply border border-4 border-amber-600;
+  }
+
+  .custom-input:hover {
+    @apply border-indigo-600;
+  }
+
+  .custom-input:focus,
+  .custom-input.ant-input-focused {
+    @apply border-indigo-600 ring-2 ring-indigo-600/20;
+  }
+}

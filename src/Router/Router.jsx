@@ -3,6 +3,7 @@ import RootLayout from "../layouts/RootLayout";
 import Login from "../pages/Login/Login";
 import CreateOrder from "../pages/CreateOrder/CreateOrder";
 import Shops from "../pages/Shops/Shops";
+import AddShop from "../pages/AddShop/AddShop";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
       {
         path: "/shops",
         Component: Shops,
+      },
+      {
+        path: "/add-shop",
+        Component: AddShop,
       },
     ],
   },

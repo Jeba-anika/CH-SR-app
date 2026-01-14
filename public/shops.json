@@ -52,5 +52,19 @@
     "thana": "Texas",
     "district": "Columbus",
     "phone_number": "555-1234"
+  },
+  {
+    "id": 1,
+    "shop_name": "rashid store",
+    "trade_license": "1258741445544",
+    "shop_image": "https://api.erp.seoulsourcing.com/media/shop_images/1729483988262_LBmMZQK.JPEG",
+    "shopper": 71316,
+    "assigned_sr": null,
+    "thana": 2,
+    "name": "rashid khan Mia",
+    "mobile_number": "017808709788994",
+    "email": "rashid66@gmail.com",
+    "thana_name": "Savar sadar",
+    "user_type": "SHOPPER"
   }
 ]
