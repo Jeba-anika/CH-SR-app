@@ -1,54 +1,43 @@
 import { Flex, Form, Input, Select } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 import TextArea from "antd/es/input/TextArea";
+import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
+import { useQuery } from "@tanstack/react-query";
 
 const AddShop = () => {
-  const thanaList = [
-    { id: 1, name: "Shop A", address: "123 Street" },
-    { id: 2, name: "Shop B", address: "456 Avenue" },
-    { id: 3, name: "Shop C", address: "789 Road" },
-  ];
-
-  const thanaOptions = thanaList.map((thana) => ({
-    value: thana.id,
-    label: thana.name,
-  }));
-
-  useEffect(() => {
-    const fetchData = async () => {
+  const { data: thanaOptions, isLoading: isThanaLoading } = useQuery({
+    queryKey: ["thanaOptions"],
+    queryFn: async () => {
       try {
-        const cityRes = await fetch(
+        const thanaRes = await fetch(
           "https://api.erp.seoulsourcing.com/api/global-address"
         );
-        // const allShopsJSON = await shopsRes.json();
-        // const shopOptions = allShopsJSON?.map((shop) => ({
-        //   value: shop.shop_id,
-        //   label: shop.shop_name,
-        //   ...shop,
-        // }));
-        // setAllShops(shopOptions);
-
-        const productsRes = await fetch("products.json");
-        const products = await productsRes.json();
-        console.log(products);
-        const productOptions = products?.map((product) => ({
-          value: product.product_id,
-          label: product.product_name,
-          ...product,
+        const thanaJSON = await thanaRes.json();
+        const thanaList = thanaJSON?.city;
+        const thanaOptions = thanaList?.map((thana) => ({
+          value: thana.id,
+          label: thana.name,
+          ...thana,
         }));
-        // setAllProducts(productOptions);
+        return thanaOptions;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
+    },
+  });
 
-    fetchData();
-  }, []);
+  const onSubmitAddShop = (values) => {
+    console.log("Success:", values);
+  };
 
   return (
     <div className="m-10">
-      <Form name="layout-multiple-horizontal" layout="horizontal">
+      <Form
+        name="layout-multiple-horizontal"
+        layout="horizontal"
+        onFinish={onSubmitAddShop}
+      >
         <TBSFormItemField
           label={"Shop Name"}
           name={"shop_name"}
@@ -82,12 +71,17 @@ const AddShop = () => {
           isRequired={false}
           type={"number"}
         />
-        <Form.Item layout="vertical" label="Select Thana" required={true}>
+        <Form.Item
+          layout="vertical"
+          label="Select Thana"
+          name={"thana"}
+          required={true}
+        >
           <Select
             showSearch={{ optionFilterProp: "label" }}
             placeholder="Search and select thana"
             onChange={(value) => {
-              const selected = thanaList.find((s) => s.id === value);
+              const selected = thanaOptions.find((s) => s.id === value);
               console.log("Selected thana:", selected);
             }}
             options={thanaOptions}
@@ -107,6 +101,9 @@ const AddShop = () => {
           rules={[{ required: true }]}
         >
           <TextArea className="border! border-[#F9CF2F]!" rows={4} />
+        </Form.Item>
+        <Form.Item label={null}>
+          <TBSButton btnType={"submit"} text={"Add Shop"} style={"w-full"} />
         </Form.Item>
       </Form>
     </div>

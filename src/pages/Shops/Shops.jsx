@@ -1,51 +1,78 @@
-import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Table, Flex, Space, Tag, Spin } from "antd";
+import { FaEdit } from "react-icons/fa";
+import { Link, Navigate } from "react-router";
 
 const Shops = () => {
-  const [allShops, setAllShops] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
+  const { data: allShops, isLoading } = useQuery({
+    queryKey: ["shops"],
+    queryFn: async () => {
       try {
-        const shopsRes = await fetch("shops.json");
+        const shopsRes = await fetch(
+          "https://api.erp.seoulsourcing.com/api/shop"
+        );
         const allShopsJSON = await shopsRes.json();
-        const shopOptions = allShopsJSON?.map((shop) => ({
-          value: shop.shop_id,
-          label: shop.shop_name,
+        const shopOptions = allShopsJSON?.results?.map((shop) => ({
+          key: shop?.id,
           ...shop,
         }));
-        setAllShops(shopOptions);
+        return shopOptions;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
+    },
+  });
 
-    fetchData();
-  }, []);
+  const columns = [
+    {
+      title: "Shop Name",
+      dataIndex: "shop_name",
+      key: "shop_name",
+      render: (text) => <>{text}</>,
+    },
+    {
+      title: "Customer Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "mobile_number",
+      key: "mobile_number",
+    },
+    {
+      title: "District",
+      key: "district",
+      dataIndex: "district",
+    },
+    {
+      title: "Thana",
+      key: "thana_name",
+      dataIndex: "thana_name",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Link to={`/edit-shop/${record.key}`}>
+            <FaEdit className="cursor-pointer" />
+          </Link>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div>
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Sl</th>
-              <th>Shop Name</th>
-              <th>Customer Name</th>
-              <th>District</th>
-              <th>Thana</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allShops?.map((shop, index) => (
-              <tr key={shop?.shop_id}>
-                <th>{index + 1}</th>
-                <td>{shop.shop_name}</td>
-                <td>{shop.customer_name}</td>
-                <td>{shop.district}</td>
-                <td>{shop.thana}</td>
-                <td className="text-center  flex justify-center"></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="max-w-full! mx-10">
+      <h1 className="text-center text-2xl font-bold my-4">Shops</h1>
+      <div>
+        <Table
+          bordered
+          columns={columns}
+          dataSource={allShops}
+          scroll={{ x: "max-content" }}
+        />
       </div>
     </div>
   );

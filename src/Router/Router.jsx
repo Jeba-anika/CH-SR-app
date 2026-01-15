@@ -4,6 +4,7 @@ import Login from "../pages/Login/Login";
 import CreateOrder from "../pages/CreateOrder/CreateOrder";
 import Shops from "../pages/Shops/Shops";
 import AddShop from "../pages/AddShop/AddShop";
+import EditShop from "../pages/EditShop/EditShop";
 
 export const router = createBrowserRouter([
   {
