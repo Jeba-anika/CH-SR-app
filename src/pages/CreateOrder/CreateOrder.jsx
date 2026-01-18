@@ -12,14 +12,7 @@ const CreateOrder = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [grandTotalPrice, setGrandTotalPrice] = useState(null);
   const [selectedProductsList, setSelectedProductsList] = useState([]);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-    resetField,
-  } = useForm({
+  const { register, watch, setValue, resetField } = useForm({
     defaultValues: {
       quantity: 1,
       discount: 0,
