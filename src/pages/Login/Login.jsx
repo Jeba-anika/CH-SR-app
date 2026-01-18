@@ -1,57 +1,76 @@
+import { Button, Checkbox, Form, Input } from "antd";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../hooks/useAuth";
 import { useState } from "react";
-import TBSInput from "../../Components/Shared/TBSInput/TBSInput";
-import { useForm } from "react-hook-form";
-
-import TBSPassword from "../../Components/Shared/TBSPassword/TBSPassword";
-import { Navigate } from "react-router";
-import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
 
 const Login = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = (data) => {
-    console.log(data);
-    Navigate("/create-orders");
+  const { auth, setAuth } = useAuth();
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const navigate = useNavigate();
+  const onSubmit = async (values) => {
+    console.log(values);
+    setIsLoginLoading(true);
+    try {
+      const user = { ...values };
+      const data = await fetch(
+        "https://api.erp.seoulsourcing.com/api/dashboard-login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
+        },
+      );
+      const res = await data.json();
+      if (data.status === 200) {
+        setIsLoginLoading(false);
+        const authToken = res?.access;
+        console.log(authToken);
+        setAuth({ user, authToken });
+        localStorage.setItem("user", JSON.stringify({ user, authToken }));
+        navigate("/create-orders", { replace: true });
+      } else {
+        setIsLoginLoading(false);
+        throw new Error(res.message || "Login failed");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content flex-col lg:flex-row-reverse">
-        <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">Sign in to your Account!</h1>
-          <p className="py-6">
-            Enter your phone number and password to access your account.
-          </p>
-        </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl"
+    <div className="mx-10">
+      <Form
+        name="login"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 600 }}
+        onFinish={onSubmit}
+        autoComplete="off"
+      >
+        <Form.Item
+          label="Username"
+          name="username"
+          rules={[{ required: true, message: "Please input your username!" }]}
         >
-          <div className="card-body">
-            <fieldset className="fieldset">
-              <TBSInput
-                formRegister={register}
-                label={"Email"}
-                name="email"
-                inputClsName={"input w-full"}
-                inputType={"email"}
-                labelClsName={"label"}
-                placeholder={"Email"}
-                errors={errors}
-                isRequired={true}
-              ></TBSInput>
-              <TBSPassword
-                formRegister={register}
-                errors={errors}
-              ></TBSPassword>
-              <TBSButton text={"Login"} />
-            </fieldset>
-          </div>
-        </form>
-      </div>
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item label={null}>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

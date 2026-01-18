@@ -5,6 +5,7 @@ import CreateOrder from "../pages/CreateOrder/CreateOrder";
 import Shops from "../pages/Shops/Shops";
 import AddShop from "../pages/AddShop/AddShop";
 import EditShop from "../pages/EditShop/EditShop";
+import PrivateRoute from "../routes/PrivateRoute";
 
 export const router = createBrowserRouter([
   {
@@ -16,16 +17,21 @@ export const router = createBrowserRouter([
         Component: Login,
       },
       {
-        path: "/create-orders",
-        Component: CreateOrder,
-      },
-      {
-        path: "/shops",
-        Component: Shops,
-      },
-      {
-        path: "/add-shop",
-        Component: AddShop,
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: "/create-orders",
+            Component: CreateOrder,
+          },
+          {
+            path: "/shops",
+            Component: Shops,
+          },
+          {
+            path: "/add-shop",
+            Component: AddShop,
+          },
+        ],
       },
     ],
   },
