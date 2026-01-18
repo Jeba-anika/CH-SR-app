@@ -1,13 +1,15 @@
 import React from "react";
-import { useAuth } from "../hooks/useAuth";
 import { Navigate, Outlet } from "react-router";
+import { useAuth } from "../hooks/useAuth";
 
 const PrivateRoute = () => {
-  const isAuthenticated = JSON.parse(localStorage.getItem("user"));
-  console.log(isAuthenticated);
+  const { auth } = useAuth();
+  console.log(auth);
+  //   const isAuthenticated = JSON.parse(localStorage.getItem("user"));
+  //   console.log(isAuthenticated);
   return (
     <>
-      {isAuthenticated?.authToken ? (
+      {auth ? (
         <div>
           <Outlet />
         </div>
