@@ -2,6 +2,8 @@ import { Button, Checkbox, Form, Input } from "antd";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import { useState } from "react";
+import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
+import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
 
 const Login = () => {
   const { auth, setAuth } = useAuth();
@@ -40,37 +42,46 @@ const Login = () => {
   };
 
   return (
-    <div className="mx-10">
-      <Form
-        name="login"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-        onFinish={onSubmit}
-        autoComplete="off"
-      >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input />
-        </Form.Item>
+    <div className="mx-10 pt-20 md:mx-20 lg:mx-80">
+      <div>
+        <h1 className="font-bold text-3xl text-center">
+          Sign in to your account
+        </h1>
+        <p className="font-light text-center">
+          Enter your Username and Password to Login
+        </p>
+      </div>
+      <div className="mt-10 w-full  ">
+        <Form name="login" onFinish={onSubmit} autoComplete="off">
+          <TBSFormItemField
+            isRequired={true}
+            label={"Username"}
+            name={"username"}
+            placeholder={"Enter your username"}
+          />
 
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password />
-        </Form.Item>
+          <Form.Item
+            layout="vertical"
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password
+              className="border! border-[#F9CF2F]!"
+              placeholder="Enter your password"
+            />
+          </Form.Item>
 
-        <Form.Item label={null}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item label={null}>
+            <TBSButton
+              btnType={"submit"}
+              text={"Login"}
+              style={"w-full"}
+              isLoading={isLoginLoading}
+            />
+          </Form.Item>
+        </Form>
+      </div>
     </div>
   );
 };

@@ -2,14 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { Table, Flex, Space, Tag, Spin } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { Link, Navigate } from "react-router";
+import { useAuth } from "../../hooks/useAuth";
 
 const Shops = () => {
+  const { auth } = useAuth();
   const { data: allShops, isLoading } = useQuery({
     queryKey: ["shops"],
+    enabled: !!auth?.authToken,
     queryFn: async () => {
       try {
         const shopsRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/shop"
+          "https://api.erp.seoulsourcing.com/api/sr-shop-list/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${auth?.authToken}`,
+            },
+          },
         );
         const allShopsJSON = await shopsRes.json();
         const shopOptions = allShopsJSON?.results?.map((shop) => ({
@@ -62,6 +71,13 @@ const Shops = () => {
       ),
     },
   ];
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin className="" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-full! mx-10">

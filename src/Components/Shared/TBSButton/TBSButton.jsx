@@ -1,13 +1,21 @@
+import { Spin } from "antd";
 import React from "react";
 
-const TBSButton = ({ text, onClickFn, btnType, style }) => {
+const TBSButton = ({ text, onClickFn, btnType, style, isLoading = false }) => {
   return (
     <button
       type={btnType || "button"}
-      onClick={() => onClickFn()}
+      onClick={() => onClickFn && onClickFn()}
       className={`btn bg-[#f9cf2f] mt-4 ${style}`}
+      disabled={isLoading}
     >
-      {text}
+      {isLoading ? (
+        <>
+          <Spin /> {text}
+        </>
+      ) : (
+        text
+      )}
     </button>
   );
 };
