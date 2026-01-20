@@ -4,63 +4,73 @@ import { useForm } from "react-hook-form";
 import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
 import TBSDropdownSelect from "../../Components/Shared/TBSDropdownSelect/TBSDropdownSelect";
 import { MdDelete } from "react-icons/md";
+import { Form, Select, Space, Table } from "antd";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../../hooks/useAuth";
+import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 
 const CreateOrder = () => {
-  const [allShops, setAllShops] = useState();
+  const { auth } = useAuth();
+  const [form] = Form.useForm();
+
   const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
-  const [allProducts, setAllProducts] = useState();
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [grandTotalPrice, setGrandTotalPrice] = useState(null);
   const [selectedProductsList, setSelectedProductsList] = useState([]);
-  const { register, watch, setValue, resetField } = useForm({
-    defaultValues: {
-      quantity: 1,
-      discount: 0,
-      price: 0,
-      subtotal: 0,
-    },
-  });
-  useEffect(() => {
-    const fetchData = async () => {
+
+  const { data: shopOptions, isLoading: isShopOptionsLoading } = useQuery({
+    queryKey: ["shopOptions"],
+    enabled: !!auth?.authToken,
+    queryFn: async () => {
       try {
-        const shopsRes = await fetch("shops.json");
-        const allShopsJSON = await shopsRes.json();
-        const shopOptions = allShopsJSON?.map((shop) => ({
-          value: shop.shop_id,
+        const shopRes = await fetch(
+          "https://api.erp.seoulsourcing.com/api/sr-shop-list",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${auth?.authToken}`,
+            },
+          },
+        );
+        const shopJSON = await shopRes.json();
+        const shopOptions = shopJSON?.results?.map((shop) => ({
+          value: shop.id,
           label: shop.shop_name,
           ...shop,
         }));
-        setAllShops(shopOptions);
 
-        const productsRes = await fetch("products.json");
-        const products = await productsRes.json();
-        console.log(products);
-        const productOptions = products?.map((product) => ({
+        return shopOptions;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
+  });
+
+  const { data: allProducts, isLoading: isProductsLoading } = useQuery({
+    queryKey: ["allProducts"],
+    enabled: !!auth?.authToken,
+    queryFn: async () => {
+      try {
+        const shopRes = await fetch("products.json", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${auth?.authToken}`,
+          },
+        });
+        const productsJSON = await shopRes.json();
+        const productsOptions = productsJSON?.map((product) => ({
           value: product.product_id,
           label: product.product_name,
           ...product,
         }));
-        setAllProducts(productOptions);
+
+        return productsOptions;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
-
-    fetchData();
-  }, []);
-
-  const quantity = watch("quantity");
-  const discount = watch("discount");
-
-  useEffect(() => {
-    if (!selectedProduct) return;
-
-    const qty = Number(quantity);
-    const disc = Number(discount);
-    const unitPrice = parseFloat(selectedProduct.price);
-    const subtotal = qty * unitPrice - disc;
-    setValue("subtotal", subtotal);
-  }, [selectedProduct, quantity, discount, setValue]);
+    },
+  });
 
   console.log(allProducts);
   console.log(selectedProduct);
@@ -70,213 +80,237 @@ const CreateOrder = () => {
       ...selectedProductsList,
       {
         ...selectedProduct,
-        quantity: quantity,
-        discount: discount,
-        subtotal: watch("subtotal"),
+        quantity: form.getFieldValue("quantity"),
+        discount: form.getFieldValue("discount"),
+        total_amount: form.getFieldValue("amount"),
       },
     ];
     const grandTotal = orderList.reduce(
-      (total, product) => total + product.subtotal,
-      0
+      (total, product) => total + product.total_amount,
+      0,
     );
+    console.log(orderList, grandTotal);
     setGrandTotalPrice(grandTotal);
     setSelectedProductsList(orderList);
     setSelectedProduct(null);
-    resetField("quantity", { defaultValue: 1 });
-    resetField("discount", { defaultValue: 0 });
-    resetField("subtotal", { defaultValue: 0 });
+    form.resetFields(["quantity", "discount", "total_price", "amount"]);
   };
   const onDeleteItems = (productId) => {
     const updatedList = selectedProductsList.filter(
-      (product) => product.product_id !== productId
+      (product) => product.product_id !== productId,
     );
-    const grandTotal = updatedList.reduce(
-      (total, product) => total + product.subtotal,
-      0
-    );
-    setGrandTotalPrice(grandTotal);
+    console.log(updatedList);
+
     setSelectedProductsList(updatedList);
   };
   const onCreateOrder = (data) => {
     console.log(data);
   };
 
+  const columns = [
+    {
+      title: "SL No",
+      dataIndex: "sl_no",
+      key: "sl_no",
+      render: (_, record, index) => <>{index + 1}</>,
+    },
+    {
+      title: "Item Name",
+      dataIndex: "product_name",
+      key: "name",
+    },
+    {
+      title: "Qty",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Price",
+      key: "total_price",
+      dataIndex: "price",
+    },
+    {
+      title: "Discount",
+      key: "discount",
+      dataIndex: "discount",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_) => {
+        return (
+          <MdDelete
+            onClick={() => onDeleteItems(_.product_id)}
+            className="cursor-pointer text-red-500"
+          />
+        );
+      },
+    },
+  ];
+
   return (
-    <form>
-      <div className="hero bg-base-200 min-h-screen">
-        <form className="card bg-base-100 w-full  shrink-0 shadow-2xl">
-          <div className="card-body">
-            <fieldset className="fieldset">
-              <div className="card bg-base-100 w-full  shrink-0 shadow-xl">
-                <div className="card-body">
-                  <fieldset className="fieldset">
-                    <TBSDropdownSelect
-                      label={"Select Shop"}
-                      options={allShops}
-                      selectedOption={selectedShopkeeper}
-                      setSelectedOption={setSelectedShopkeeper}
-                    ></TBSDropdownSelect>
-                    <label className={"label"}>Customer Name</label>
-                    <input
-                      type="text"
-                      value={
-                        selectedShopkeeper
-                          ? selectedShopkeeper?.customer_name
-                          : "Customer Name"
-                      }
-                      className="input w-full "
-                      disabled
-                    />
-                    <label className={"label"}>Phone Number</label>
-                    <input
-                      type="text"
-                      value={
-                        selectedShopkeeper
-                          ? selectedShopkeeper?.phone_number
-                          : "Phone Number"
-                      }
-                      className="input w-full"
-                      disabled
-                    />
-                    {selectedShopkeeper && (
-                      <div className="grid grid-cols-4 gap-2">
-                        <div className="col-span-1">
-                          Thana: {selectedShopkeeper?.thana}
-                        </div>
-                        <div className="col-span-1">
-                          District: {selectedShopkeeper?.district}
-                        </div>
-                        <div className="col-span-2">
-                          Address: {selectedShopkeeper?.address}
-                        </div>
-                      </div>
-                    )}
-                    <div>
-                      {/* Order Here */}
-                      <h3 className="text-center text-2xl">Order Here</h3>
-                      <div className="grid grid-cols-5 gap-4 w-full">
-                        <div className="col-span-3">
-                          <TBSDropdownSelect
-                            label={"Select Product"}
-                            options={allProducts}
-                            selectedOption={selectedProduct}
-                            setSelectedOption={setSelectedProduct}
-                          ></TBSDropdownSelect>
-                        </div>
-                        <div className="">
-                          <label className="label">
-                            <span className="label-text">Quantity</span>
-                          </label>
-                          <input
-                            type="number"
-                            className="input "
-                            defaultValue={1}
-                            {...register("quantity", {
-                              required: {
-                                value: true,
-                                message: "Quantity is required",
-                              },
-                            })}
-                          />
-                        </div>
-                        <div className="">
-                          <label className="label">
-                            <span className="label-text">Price</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={
-                              selectedProduct ? selectedProduct?.price : "Price"
-                            }
-                            className="input w-full"
-                            disabled
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-4">
-                      <div className="">
-                        <label className="label">
-                          <span className="label-text">Discount</span>
-                        </label>
-                        <input
-                          type="number"
-                          className="input "
-                          defaultValue={0}
-                          {...register("discount")}
-                        />
-                      </div>
-                      <div className="">
-                        <label className="label">
-                          <span className="label-text">Amount</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input "
-                          disabled
-                          {...register("subtotal")}
-                        />
-                      </div>
-                    </div>
-                    <TBSButton
-                      onClickFn={() => onAddItemBtnClick()}
-                      text={"Add Item"}
-                    />
+    <div className="m-10">
+      <Form
+        form={form}
+        name="login"
+        onFinish={onCreateOrder}
+        autoComplete="off"
+        initialValues={{
+          quantity: 1,
+          total_price: selectedProduct ? selectedProduct?.price : 0,
+          discount: 0,
+          amount: 0,
+        }}
+        onValuesChange={(changedValues, allValues) => {
+          if ("quantity" in changedValues) {
+            const quantity = Number(allValues.quantity || 0);
+            const unitPrice = selectedProduct?.price || 0;
 
-                    {/* Products Table */}
-                    <div className="overflow-x-auto">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th>Sl</th>
-                            <th>Item Name</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Discount</th>
-                            <th>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedProductsList.map((product, index) => (
-                            <tr key={product?.product_id}>
-                              <th>{index + 1}</th>
-                              <td>{product.product_name}</td>
-                              <td>{product.quantity}</td>
-                              <td>{product.price}</td>
-                              <td>{product.discount}</td>
-                              <td>{product.subtotal}</td>
-                              <td className="text-center  flex justify-center">
-                                <MdDelete
-                                  onClick={() =>
-                                    onDeleteItems(product.product_id)
-                                  }
-                                  className="cursor-pointer text-red-500"
-                                />
-                              </td>
-                            </tr>
-                          ))}
-                          <tr>
-                            <th colSpan={5} className="text-right">
-                              Grand Total
-                            </th>
-                            <td>{grandTotalPrice}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <TBSButton
-                      onClickFn={() => onCreateOrder()}
-                      text={"Create Order"}
-                    />
-                  </fieldset>
-                </div>
-              </div>
-            </fieldset>
+            form.setFieldsValue({
+              total_price: quantity * unitPrice,
+              amount: quantity * unitPrice - (allValues.discount || 0),
+            });
+          }
+          if ("discount" in changedValues) {
+            const discount = Number(allValues.discount || 0);
+            const discountedPrice = allValues.total_price - discount;
+            form.setFieldsValue({
+              amount: discountedPrice,
+            });
+          }
+        }}
+      >
+        <Form.Item
+          layout="vertical"
+          label="shop_name"
+          name={"shopper"}
+          required={true}
+        >
+          <Select
+            showSearch={{ optionFilterProp: "label" }}
+            placeholder="Search and select shop"
+            onChange={(value) => {
+              const selected = shopOptions.find((s) => s.id === value);
+              setSelectedShopkeeper(selected);
+              form.setFieldsValue({
+                name: selected?.name,
+                mobile_number: selected?.mobile_number,
+              });
+            }}
+            options={shopOptions}
+            className="border! border-[#F9CF2F]!"
+          />
+        </Form.Item>
+        <TBSFormItemField
+          type={"text"}
+          label={"Customer Name"}
+          name={"name"}
+          isDisabled={true}
+          placeholder={"Customer Name"}
+        />
+        <TBSFormItemField
+          type={"text"}
+          label={"Mobile Number"}
+          name={"mobile_number"}
+          isDisabled={true}
+          placeholder={"Mobile Number"}
+        />
+        {selectedShopkeeper && (
+          <div className="grid grid-cols-4 gap-2">
+            <div className="col-span-1">
+              Thana: {selectedShopkeeper?.thana_name}
+            </div>
           </div>
-        </form>
-      </div>
-    </form>
+        )}
+        <div>
+          {/* Order Here */}
+          <h3 className="text-center text-2xl">Order Here</h3>
+          <div className="grid grid-cols-5 gap-4 w-full">
+            <div className="col-span-3">
+              <Form.Item
+                layout="vertical"
+                label="Product name"
+                name={"product_name"}
+                required={true}
+              >
+                <Select
+                  showSearch={{ optionFilterProp: "label" }}
+                  placeholder="Search and select product"
+                  onChange={(value) => {
+                    const selected = allProducts.find(
+                      (s) => s.product_id === value,
+                    );
+                    setSelectedProduct(selected);
+                    form.setFieldsValue({
+                      quantity: 1,
+                      total_price: selected?.price || 0,
+                      amount: selected?.price || 0,
+                    });
+                  }}
+                  options={allProducts}
+                  className="border! border-[#F9CF2F]!"
+                />
+              </Form.Item>
+            </div>
+            <div className="">
+              <TBSFormItemField
+                type={"number"}
+                label={"Quantity"}
+                name={"quantity"}
+                isDisabled={false}
+                isRequired={true}
+              />
+            </div>
+            <div className="">
+              <TBSFormItemField
+                type={"text"}
+                label={"Price"}
+                name={"total_price"}
+                isDisabled={true}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center gap-4">
+          <div className="w-1/2">
+            <TBSFormItemField
+              type={"number"}
+              label={"Discount"}
+              name={"discount"}
+              isDisabled={false}
+            />
+          </div>
+          <div className="w-1/2">
+            <TBSFormItemField
+              type={"number"}
+              label={"Total Amount"}
+              name={"amount"}
+              isDisabled={true}
+            />
+          </div>
+        </div>
+        <TBSButton
+          onClickFn={() => onAddItemBtnClick()}
+          text={"Add Item"}
+          style={"w-full "}
+        />
+        <div className="mt-10">
+          <Table
+            bordered
+            columns={columns}
+            dataSource={selectedProductsList}
+            scroll={{ x: "max-content" }}
+          />
+        </div>
+
+        <TBSButton
+          onClickFn={() => onCreateOrder()}
+          text={"Create Order"}
+          btnType={"submit"}
+          style={"w-full"}
+        />
+      </Form>
+    </div>
   );
 };
 

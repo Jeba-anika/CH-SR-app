@@ -1,7 +1,14 @@
 import { Form, Input } from "antd";
 import React from "react";
 
-const TBSFormItemField = ({ label, name, placeholder, type, isRequired }) => {
+const TBSFormItemField = ({
+  label,
+  name,
+  placeholder,
+  type,
+  isRequired,
+  isDisabled = false,
+}) => {
   return (
     <Form.Item
       layout="vertical"
@@ -13,6 +20,7 @@ const TBSFormItemField = ({ label, name, placeholder, type, isRequired }) => {
         className="border! border-[#F9CF2F]!"
         placeholder={placeholder}
         type={type || "text"}
+        disabled={isDisabled}
       />
     </Form.Item>
   );
