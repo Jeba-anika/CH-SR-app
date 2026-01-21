@@ -9,6 +9,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
 import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 
+const PRODUCT_FIELDS = [
+  "quantity",
+  "discount",
+  "total_price",
+  "amount",
+  "product_name",
+];
 const CreateOrder = () => {
   const { auth } = useAuth();
   const [form] = Form.useForm();
@@ -16,7 +23,7 @@ const CreateOrder = () => {
   const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [grandTotalPrice, setGrandTotalPrice] = useState(null);
+
   const [selectedProductsList, setSelectedProductsList] = useState([]);
 
   const { data: shopOptions, isLoading: isShopOptionsLoading } = useQuery({
@@ -52,16 +59,20 @@ const CreateOrder = () => {
     enabled: !!auth?.authToken,
     queryFn: async () => {
       try {
-        const shopRes = await fetch("products.json", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${auth?.authToken}`,
+        const shopRes = await fetch(
+          "https://api.erp.seoulsourcing.com/api/products",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${auth?.authToken}`,
+            },
           },
-        });
+        );
         const productsJSON = await shopRes.json();
-        const productsOptions = productsJSON?.map((product) => ({
-          value: product.product_id,
-          label: product.product_name,
+        console.log(productsJSON);
+        const productsOptions = productsJSON?.results.map((product) => ({
+          value: product?.id,
+          label: product?.name,
           ...product,
         }));
 
@@ -72,28 +83,18 @@ const CreateOrder = () => {
     },
   });
 
-  console.log(allProducts);
-  console.log(selectedProduct);
-
   const onAddItemBtnClick = () => {
-    const orderList = [
-      ...selectedProductsList,
-      {
-        ...selectedProduct,
-        quantity: form.getFieldValue("quantity"),
-        discount: form.getFieldValue("discount"),
-        total_amount: form.getFieldValue("amount"),
-      },
-    ];
-    const grandTotal = orderList.reduce(
-      (total, product) => total + product.total_amount,
-      0,
-    );
-    console.log(orderList, grandTotal);
-    setGrandTotalPrice(grandTotal);
-    setSelectedProductsList(orderList);
+    const newItem = {
+      ...selectedProduct,
+      quantity: form.getFieldValue("quantity"),
+      discount: form.getFieldValue("discount"),
+      total_amount: form.getFieldValue("amount"),
+      unit_price: selectedProduct?.price,
+    };
+    setSelectedProductsList((prev) => [...prev, newItem]);
+
     setSelectedProduct(null);
-    form.resetFields(["quantity", "discount", "total_price", "amount"]);
+    form.resetFields(PRODUCT_FIELDS);
   };
   const onDeleteItems = (productId) => {
     const updatedList = selectedProductsList.filter(
@@ -105,6 +106,22 @@ const CreateOrder = () => {
   };
   const onCreateOrder = (data) => {
     console.log(data);
+    console.log(selectedProductsList);
+    const products = selectedProductsList.map((product) => ({
+      product: product.product_id,
+      quantity: product?.quantity,
+      unit_price: product?.price,
+      total_price: product?.total_amount,
+      product_discount: product?.discount,
+    }));
+    const orderPayload = {
+      shopper: data?.shopper,
+      address: selectedShopkeeper?.thana,
+      total_amount: 0,
+      total_discount_amount: 0,
+      payment_option: "Cash",
+      products,
+    };
   };
 
   const columns = [
@@ -125,14 +142,19 @@ const CreateOrder = () => {
       key: "quantity",
     },
     {
-      title: "Price",
-      key: "total_price",
-      dataIndex: "price",
+      title: "Unit Price",
+      key: "unit_price",
+      dataIndex: "unit_price",
     },
     {
       title: "Discount",
       key: "discount",
       dataIndex: "discount",
+    },
+    {
+      title: "Price",
+      key: "total_amount",
+      dataIndex: "total_amount",
     },
     {
       title: "Action",
@@ -155,20 +177,17 @@ const CreateOrder = () => {
         name="login"
         onFinish={onCreateOrder}
         autoComplete="off"
-        initialValues={{
-          quantity: 1,
-          total_price: selectedProduct ? selectedProduct?.price : 0,
-          discount: 0,
-          amount: 0,
-        }}
         onValuesChange={(changedValues, allValues) => {
           if ("quantity" in changedValues) {
             const quantity = Number(allValues.quantity || 0);
             const unitPrice = selectedProduct?.price || 0;
 
             form.setFieldsValue({
-              total_price: quantity * unitPrice,
-              amount: quantity * unitPrice - (allValues.discount || 0),
+              total_price: (quantity * unitPrice).toFixed(2),
+              amount: (
+                quantity * unitPrice -
+                (allValues.discount || 0)
+              ).toFixed(2),
             });
           }
           if ("discount" in changedValues) {
@@ -182,7 +201,7 @@ const CreateOrder = () => {
       >
         <Form.Item
           layout="vertical"
-          label="shop_name"
+          label="Shop Name"
           name={"shopper"}
           required={true}
         >
@@ -237,14 +256,13 @@ const CreateOrder = () => {
                   showSearch={{ optionFilterProp: "label" }}
                   placeholder="Search and select product"
                   onChange={(value) => {
-                    const selected = allProducts.find(
-                      (s) => s.product_id === value,
-                    );
+                    const selected = allProducts.find((s) => s.id === value);
                     setSelectedProduct(selected);
                     form.setFieldsValue({
                       quantity: 1,
                       total_price: selected?.price || 0,
                       amount: selected?.price || 0,
+                      discount: 0,
                     });
                   }}
                   options={allProducts}
@@ -255,10 +273,13 @@ const CreateOrder = () => {
             <div className="">
               <TBSFormItemField
                 type={"number"}
-                label={"Quantity"}
+                label={
+                  <>
+                    <div className="text-red-600">* </div>Quantity
+                  </>
+                }
                 name={"quantity"}
                 isDisabled={false}
-                isRequired={true}
               />
             </div>
             <div className="">
@@ -293,6 +314,7 @@ const CreateOrder = () => {
           onClickFn={() => onAddItemBtnClick()}
           text={"Add Item"}
           style={"w-full "}
+          isDisabled={!selectedProduct}
         />
         <div className="mt-10">
           <Table
