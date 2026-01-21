@@ -4,6 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useState } from "react";
 import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
+import TBSLogo from "../../assets/TBS logo.png";
 
 const Login = () => {
   const { auth, setAuth } = useAuth();
@@ -43,8 +44,9 @@ const Login = () => {
 
   return (
     <div className="mx-10 pt-20 md:mx-20 lg:mx-80">
+      <img src={TBSLogo} alt="TBS Logo" className="mx-auto mb-10 w-48 h-auto" />
       <div>
-        <h1 className="font-bold text-3xl text-center">
+        <h1 className="font-bold text-2xl text-center">
           Sign in to your account
         </h1>
         <p className="font-light text-center">

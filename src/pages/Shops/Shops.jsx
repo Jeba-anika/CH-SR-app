@@ -3,6 +3,8 @@ import { Table, Flex, Space, Tag, Spin } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
+import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
+import { PlusOutlined } from "@ant-design/icons";
 
 const Shops = () => {
   const { auth } = useAuth();
@@ -74,14 +76,36 @@ const Shops = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Spin className="" />
+        <TBSSpin />
       </div>
     );
   }
 
   return (
     <div className="max-w-full! mx-10">
-      <h1 className="text-center text-2xl font-bold my-4">Shops</h1>
+      <div className="flex justify-between items-center my-4">
+        <h1 className="text-3xl font-bold">Shops</h1>
+
+        <Link to="/add-shop">
+          <button
+            className="
+        flex items-center gap-2
+        px-3 py-2
+        rounded
+        bg-[#F9CF2F]
+        text-black
+        font-medium
+        shadow
+        hover:shadow-md
+        hover:opacity-90
+        transition-all
+      "
+          >
+            <PlusOutlined />
+            Add Shop
+          </button>
+        </Link>
+      </div>
       <div>
         <Table
           bordered

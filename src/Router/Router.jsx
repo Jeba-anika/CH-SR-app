@@ -10,12 +10,11 @@ import PrivateRoute from "../routes/PrivateRoute";
 export const router = createBrowserRouter([
   {
     path: "/",
+    Component: Login,
+  },
+  {
     element: <RootLayout />,
     children: [
-      {
-        index: true,
-        Component: Login,
-      },
       {
         element: <PrivateRoute />,
         children: [
