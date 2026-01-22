@@ -12,6 +12,7 @@ const AddShop = () => {
   const { auth } = useAuth();
   const [fileList, setFileList] = useState([]);
   const [isAddShopLoading, setIsAddShopLoading] = useState(false);
+  const [selectedThana, setSelectedThana] = useState(null);
   const navigate = useNavigate();
   const { data: thanaOptions, isLoading: isThanaLoading } = useQuery({
     queryKey: ["thanaOptions"],
@@ -21,7 +22,7 @@ const AddShop = () => {
           "https://api.erp.seoulsourcing.com/api/global-address",
         );
         const thanaJSON = await thanaRes.json();
-        const thanaList = thanaJSON?.city;
+        const thanaList = thanaJSON?.thana;
         const thanaOptions = thanaList?.map((thana) => ({
           value: thana.id,
           label: thana.name,
@@ -36,6 +37,10 @@ const AddShop = () => {
 
   const onSubmitAddShop = async (values) => {
     console.log("Success:", values);
+    const payload = {
+      ...values,
+      district: selectedThana?.city_name,
+    };
     const formData = new FormData();
     formData.append("image", fileList[0]);
     Object.entries(values).forEach(([key, value]) => {
@@ -127,7 +132,7 @@ const AddShop = () => {
             placeholder="Search and select thana"
             onChange={(value) => {
               const selected = thanaOptions.find((s) => s.id === value);
-              console.log("Selected thana:", selected);
+              setSelectedThana(selected);
             }}
             options={thanaOptions}
             className="border! border-[#F9CF2F]!"

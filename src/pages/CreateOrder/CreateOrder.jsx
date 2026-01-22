@@ -239,6 +239,9 @@ const CreateOrder = () => {
             <div className="col-span-1">
               Thana: {selectedShopkeeper?.thana_name}
             </div>
+            <div className="col-span-1">
+              District: {selectedShopkeeper?.district}
+            </div>
           </div>
         )}
         <div>
