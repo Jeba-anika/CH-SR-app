@@ -7,11 +7,12 @@ import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import EditShop from "../EditShop/EditShop";
+import EditOrder from "../EditOrder/EditOrder";
 
 const Orders = () => {
   const { auth } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const {
     data: allOrders,
@@ -84,7 +85,7 @@ const Orders = () => {
           <button
             onClick={() => {
               showModal();
-              setSelectedShopId(record.id);
+              setSelectedOrderId(record.id);
             }}
           >
             <FaEdit className="cursor-pointer" />
@@ -135,12 +136,11 @@ const Orders = () => {
         />
       </div>
 
-      {/* {EDIT SHOP} */}
-      <EditShop
-        isModalOpen={isModalOpen}
+      <EditOrder
+        orderId={selectedOrderId}
+        refetchAllOrders={refetchAllOrders}
         setIsModalOpen={setIsModalOpen}
-        selectedShopId={selectedShopId}
-        refetchAllShops={refetchAllOrders}
+        isModalOpen={isModalOpen}
       />
     </div>
   );

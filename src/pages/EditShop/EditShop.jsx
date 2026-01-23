@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import TBSModal from "../../Components/Shared/TBSModal/TBSModal";
 import TBSShopForm from "../../Components/Shared/TBSShopForm/TBSShopForm";
-import { message } from "antd";
 import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
 import useFetchShopDataHandler from "../../hooks/useFetchShopDataHandler";
 
