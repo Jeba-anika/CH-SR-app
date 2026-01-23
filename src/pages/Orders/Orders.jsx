@@ -7,25 +7,23 @@ import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import EditShop from "../EditShop/EditShop";
-import useThanaHandler from "../../hooks/useThanaHandler";
 
-const Shops = () => {
+const Orders = () => {
   const { auth } = useAuth();
-  const { thanaOptions, isThanaLoading } = useThanaHandler();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShopId, setSelectedShopId] = useState(null);
 
   const {
-    data: allShops,
+    data: allOrders,
     isLoading,
-    refetch: refetchAllShops,
+    refetch: refetchAllOrders,
   } = useQuery({
-    queryKey: ["shops"],
+    queryKey: ["orders"],
     enabled: !!auth?.authToken,
     queryFn: async () => {
       try {
-        const shopsRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/sr-shop-list/",
+        const res = await fetch(
+          "https://api.erp.seoulsourcing.com/api/per-sr-order-list/",
           {
             method: "GET",
             headers: {
@@ -33,15 +31,14 @@ const Shops = () => {
             },
           },
         );
-        const allShopsJSON = await shopsRes.json();
-        console.log(allShopsJSON);
+        const orders = await res.json();
+        console.log(orders);
 
-        const shopOptions = allShopsJSON?.results?.map((shop) => ({
-          key: shop?.id,
-          ...shop,
-          district: thanaOptions.find((t) => t.id === shop.thana)?.city_name,
+        const orderList = orders?.results?.map((order) => ({
+          key: order?.id,
+          ...order,
         }));
-        return shopOptions;
+        return orderList;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -54,49 +51,30 @@ const Shops = () => {
 
   const columns = [
     {
-      title: "Image",
-      dataIndex: "shop_image",
-      key: "shop_image",
-      width: 80,
-      render: (image) => (
-        <Image
-          width={50}
-          height={50}
-          src={image || "/placeholder-image.png"}
-          alt="Shop"
-          style={{ objectFit: "cover", borderRadius: "4px" }}
-          fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-          preview={{
-            mask: "Preview",
-          }}
-        />
-      ),
-    },
-    {
       title: "Shop Name",
       dataIndex: "shop_name",
       key: "shop_name",
       render: (text) => <>{text}</>,
     },
     {
-      title: "Customer Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Total Qty",
+      dataIndex: "total_quantity",
+      key: "total_quantity",
     },
     {
-      title: "Phone Number",
-      dataIndex: "mobile_number",
-      key: "mobile_number",
+      title: "Total Discount",
+      dataIndex: "total_discount_amount",
+      key: "total_discount_amount",
     },
     {
-      title: "District",
-      key: "district",
-      dataIndex: "district",
+      title: "Total Amount",
+      key: "total_amount",
+      dataIndex: "total_amount",
     },
     {
-      title: "Thana",
-      key: "thana_name",
-      dataIndex: "thana_name",
+      title: "Payment Method",
+      key: "payment_option",
+      dataIndex: "payment_option",
     },
     {
       title: "Action",
@@ -115,7 +93,7 @@ const Shops = () => {
       ),
     },
   ];
-  if (isLoading || isThanaLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <TBSSpin />
@@ -126,9 +104,9 @@ const Shops = () => {
   return (
     <div className="max-w-full! mx-10">
       <div className="flex justify-between items-center my-4">
-        <h1 className="text-3xl font-bold">Shops</h1>
+        <h1 className="text-3xl font-bold">Orders</h1>
 
-        <Link to="/add-shop">
+        <Link to="/create-order">
           <button
             className="
         flex items-center gap-2
@@ -144,7 +122,7 @@ const Shops = () => {
       "
           >
             <PlusOutlined />
-            Add Shop
+            Add Order
           </button>
         </Link>
       </div>
@@ -152,7 +130,7 @@ const Shops = () => {
         <Table
           bordered
           columns={columns}
-          dataSource={allShops}
+          dataSource={allOrders}
           scroll={{ x: "max-content" }}
         />
       </div>
@@ -162,10 +140,10 @@ const Shops = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         selectedShopId={selectedShopId}
-        refetchAllShops={refetchAllShops}
+        refetchAllShops={refetchAllOrders}
       />
     </div>
   );
 };
 
-export default Shops;
+export default Orders;
