@@ -18,6 +18,7 @@ const TBSOrderForm = ({
   const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedProductsList, setSelectedProductsList] = useState([]);
+  const [deletedProductsList, setDeletedProductsList] = useState([]);
 
   const { shopOptions } = useFetchAllShopsOfSRData();
   const { thanaOptions } = useThanaHandler();
@@ -32,8 +33,12 @@ const TBSOrderForm = ({
       mobile_number: initialValues.mobile_number,
     });
 
-    setSelectedProductsList(initialValues.products || []);
-    setSelectedShopkeeper(initialValues.address || null);
+    if (initialValues.products && Array.isArray(initialValues.products)) {
+      setSelectedProductsList(initialValues.products);
+    }
+    if (initialValues.address) {
+      setSelectedShopkeeper(initialValues.address);
+    }
   }, [initialValues]);
 
   const handleSubmit = (values) => {
@@ -46,14 +51,14 @@ const TBSOrderForm = ({
       (sum, item) => sum + Number(item.product_discount || 0),
       0,
     );
-
-    const products = selectedProductsList.map((p) => ({
-      product: p.product,
-      quantity: p.quantity,
-      unit_price: p.unit_price,
-      total_price: Number(p.total_price),
-      product_discount: Number(p.product_discount),
-    }));
+    console.log(selectedProductsList);
+    // const products = selectedProductsList.map((p) => ({
+    //   product: p.product,
+    //   quantity: p.quantity,
+    //   unit_price: p.unit_price,
+    //   total_price: Number(p.total_price),
+    //   product_discount: Number(p.product_discount),
+    // }));
 
     const payload = {
       shopper: values.shopper,
@@ -61,8 +66,9 @@ const TBSOrderForm = ({
       total_amount,
       total_discount_amount,
       payment_option: "Cash",
-      products,
+      products: selectedProductsList,
       note: "Unavailable",
+      delete_product_ids: deletedProductsList,
     };
 
     onSubmit(payload);
@@ -100,6 +106,7 @@ const TBSOrderForm = ({
       {/* SHOP */}
       <Form.Item label="Shop Name" name="shopper" required>
         <Select
+          placeholder={"Search and select shop"}
           options={shopOptions}
           showSearch
           onChange={(value) => {
@@ -118,8 +125,18 @@ const TBSOrderForm = ({
         />
       </Form.Item>
 
-      <TBSFormItemField name="name" label="Customer Name" isDisabled />
-      <TBSFormItemField name="mobile_number" label="Mobile Number" isDisabled />
+      <TBSFormItemField
+        name="name"
+        label="Customer Name"
+        isDisabled
+        placeholder={"Customer Name"}
+      />
+      <TBSFormItemField
+        name="mobile_number"
+        label="Mobile Number"
+        isDisabled
+        placeholder={"Mobile Number"}
+      />
       {selectedShopkeeper && (
         <div className="grid grid-cols-4 gap-2 mb-2">
           <div className="col-span-2">
@@ -147,16 +164,23 @@ const TBSOrderForm = ({
         setSelectedProduct={setSelectedProduct}
         setSelectedProductsList={setSelectedProductsList}
         form={form}
-        selectedProductList={selectedProductsList}
+        selectedProductsList={selectedProductsList}
       />
 
       <ProductListSection
         selectedProductsList={selectedProductsList}
-        onDeleteItems={(id) =>
+        onDeleteItems={(record) => {
+          if (mode === "edit") {
+            if ("id" in record) {
+              setDeletedProductsList((prev) => [...prev, record.id]);
+            }
+          }
+          console.log(record);
+          console.log(selectedProductsList);
           setSelectedProductsList((list) =>
-            list.filter((p) => p.product_id !== id),
-          )
-        }
+            list.filter((p) => p.product !== record?.product),
+          );
+        }}
       />
 
       <TBSButton

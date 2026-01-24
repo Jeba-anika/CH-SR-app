@@ -17,11 +17,13 @@ const AddProductSection = ({
   selectedProduct,
   setSelectedProductsList,
   form,
+  selectedProductsList,
 }) => {
   const { allProducts } = useFetchAllProducts();
   const [isFieldRequired, setIsFieldRequired] = useState(false);
 
   const onAddItemBtnClick = () => {
+    console.log(selectedProductsList);
     const newItem = {
       product_name: selectedProduct.name,
       product: selectedProduct.value,

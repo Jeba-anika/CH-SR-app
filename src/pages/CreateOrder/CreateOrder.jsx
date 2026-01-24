@@ -1,16 +1,9 @@
 import { useState } from "react";
-import TBSInput from "../../Components/Shared/TBSInput/TBSInput";
 
-import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
-import TBSDropdownSelect from "../../Components/Shared/TBSDropdownSelect/TBSDropdownSelect";
-import { MdDelete } from "react-icons/md";
 import { Form, message, Select, Space, Table } from "antd";
 
 import { useAuth } from "../../hooks/useAuth";
-import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
-import AddProductSection from "./AddProductSection";
 
-import ProductListSection from "./ProductListSection";
 import { useNavigate } from "react-router";
 import TBSOrderForm from "../../Components/Shared/TBSOrderForm/TBSOrderForm";
 

@@ -24,25 +24,42 @@ const EditOrder = ({
 
   const updateOrder = async (payload) => {
     console.log(payload);
+    const products = payload?.products.map((p) => {
+      return { ...p, shop_order: orderId };
+    });
+    const editOrderPayload = {
+      id: orderId,
+      products,
+      total_amount: payload?.total_amount,
+      total_discount_amount: payload?.total_discount_amount,
+      payment_option: payload?.payment_option,
+      note: payload?.note,
+      total_quantity: payload?.total_quantity,
+      shopper: payload?.address?.shopper,
+      address: payload?.address?.id,
+      delete_product_ids: payload?.delete_product_ids,
+    };
+    console.log(editOrderPayload);
+    console.log(JSON.stringify(editOrderPayload));
     try {
-      //   setLoading(true);
-      //   const res = await fetch(
-      //     `https://api.erp.seoulsourcing.com/api/shop-order/${orderId}`,
-      //     {
-      //       method: "PATCH",
-      //       headers: {
-      //         Authorization: `Bearer ${auth?.authToken}`,
-      //         "Content-Type": "application/json",
-      //       },
-      //       body: JSON.stringify(payload),
-      //     },
-      //   );
+      setLoading(true);
+      const res = await fetch(
+        `https://api.erp.seoulsourcing.com/api/shop-order/${orderId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${auth?.authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editOrderPayload),
+        },
+      );
 
-      //   if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error();
 
       message.success("Order updated!");
-      //refetchAllOrders();
-      //setIsModalOpen(false)
+      refetchAllOrders();
+      setIsModalOpen(false);
     } catch {
       message.error("Failed to update order");
     } finally {

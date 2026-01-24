@@ -42,7 +42,7 @@ const ProductListSection = ({ onDeleteItems, selectedProductsList }) => {
         console.log(_);
         return (
           <MdDelete
-            onClick={() => onDeleteItems(_.product_id)}
+            onClick={() => onDeleteItems(_)}
             className="cursor-pointer text-red-500"
           />
         );
