@@ -15,6 +15,7 @@ const Orders = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState({});
 
   const {
     data: allOrders,
@@ -86,6 +87,7 @@ const Orders = () => {
         <Space size="middle">
           <button
             onClick={() => {
+              setSelectedOrderDetails(record);
               setSelectedOrderId(record.id);
               showModal();
             }}
@@ -155,6 +157,7 @@ const Orders = () => {
         refetchAllOrders={refetchAllOrders}
         setIsModalOpen={setIsModalOpen}
         isModalOpen={isModalOpen}
+        selectedOrderDetails={selectedOrderDetails}
       />
     </div>
   );

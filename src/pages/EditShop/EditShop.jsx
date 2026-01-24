@@ -9,15 +9,16 @@ const EditShop = ({
   setIsModalOpen,
   selectedShopId,
   refetchAllShops,
+  selectedShop,
 }) => {
   const [fileList, setFileList] = useState([]);
   const [isEditShopLoading, setIsEditShopLoading] = useState(false);
   const [selectedThana, setSelectedThana] = useState(null);
-  const { shopData, isShopLoading } = useFetchShopDataHandler({
-    shopId: selectedShopId,
-    isEdit: Boolean(selectedShopId),
-    setFileList,
-  });
+  // const { shopData, isShopLoading } = useFetchShopDataHandler({
+  //   shopId: selectedShopId,
+  //   isEdit: Boolean(selectedShopId),
+  //   setFileList,
+  // });
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -25,7 +26,7 @@ const EditShop = ({
 
   const editShopBody = (
     <>
-      {isShopLoading ? (
+      {!selectedShop && !Object.entries(selectedShop).length > 0 ? (
         <TBSSpin />
       ) : (
         <TBSShopForm
@@ -35,7 +36,7 @@ const EditShop = ({
           setFileList={setFileList}
           setSelectedThana={setSelectedThana}
           shopId={selectedShopId}
-          shopData={shopData}
+          shopData={selectedShop}
           setIsSubmitLoading={setIsEditShopLoading}
           refetchAllShops={refetchAllShops}
           setIsModalOpen={setIsModalOpen}

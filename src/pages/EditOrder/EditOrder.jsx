@@ -11,14 +11,12 @@ const EditOrder = ({
   refetchAllOrders,
   isModalOpen,
   setIsModalOpen,
+  selectedOrderDetails,
 }) => {
   const { auth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isInitialValuesLoading, setIsInitialValuesLoading] = useState(false);
 
-  const { orderDetails, isOrderDetailsLoading } = useFetchOrderById({
-    orderId,
-  });
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -69,13 +67,15 @@ const EditOrder = ({
   };
   const editOrderBody = (
     <>
-      {isOrderDetailsLoading || isInitialValuesLoading ? (
+      {!selectedOrderDetails &&
+      !Object.keys(selectedOrderDetails).length > 0 &&
+      isInitialValuesLoading ? (
         <TBSSpin />
       ) : (
         <TBSOrderForm
           key={orderId}
           mode="edit"
-          initialValues={orderDetails}
+          initialValues={selectedOrderDetails}
           onSubmit={updateOrder}
           isSubmitLoading={loading}
           setIsInitialValuesLoading={setIsInitialValuesLoading}

@@ -14,6 +14,7 @@ const Shops = () => {
   const { thanaOptions, isThanaLoading } = useThanaHandler();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedShop, setSelectedShop] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -110,7 +111,9 @@ const Shops = () => {
         <Space size="middle">
           <button
             onClick={() => {
+              setSelectedShop(record);
               setSelectedShopId(record.id);
+
               showModal();
             }}
           >
@@ -180,6 +183,7 @@ const Shops = () => {
         setIsModalOpen={setIsModalOpen}
         selectedShopId={selectedShopId}
         refetchAllShops={refetchAllShops}
+        selectedShop={selectedShop}
       />
     </div>
   );
