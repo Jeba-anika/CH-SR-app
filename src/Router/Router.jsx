@@ -7,6 +7,7 @@ import AddShop from "../pages/AddShop/AddShop";
 import EditShop from "../pages/EditShop/EditShop";
 import PrivateRoute from "../routes/PrivateRoute";
 import Orders from "../pages/Orders/Orders";
+import Home from "../pages/Home/Home";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
       {
         element: <PrivateRoute />,
         children: [
+          {
+            path: "/home",
+            Component: Home,
+          },
           {
             path: "/create-order",
             Component: CreateOrder,

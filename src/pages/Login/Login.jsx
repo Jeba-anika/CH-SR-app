@@ -32,7 +32,7 @@ const Login = () => {
         console.log(authToken);
         setAuth({ user, authToken });
         localStorage.setItem("user", JSON.stringify({ user, authToken }));
-        navigate("/create-order", { replace: true });
+        navigate("/home", { replace: true });
       } else {
         setIsLoginLoading(false);
         throw new Error(res.message || "Login failed");
