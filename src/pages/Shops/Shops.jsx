@@ -14,18 +14,22 @@ const Shops = () => {
   const { thanaOptions, isThanaLoading } = useThanaHandler();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShopId, setSelectedShopId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: allShops,
     isLoading,
     refetch: refetchAllShops,
   } = useQuery({
-    queryKey: ["shops"],
-    enabled: !!auth?.authToken,
+    queryKey: ["shops", currentPage, pageSize, thanaOptions],
+    keepPreviousData: true,
+    enabled: !!auth?.authToken && !!thanaOptions?.length,
+
     queryFn: async () => {
       try {
         const shopsRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/sr-shop-list/",
+          `https://api.erp.seoulsourcing.com/api/sr-shop-list/?page=${currentPage}&page_size=${pageSize}`,
           {
             method: "GET",
             headers: {
@@ -35,13 +39,14 @@ const Shops = () => {
         );
         const allShopsJSON = await shopsRes.json();
         console.log(allShopsJSON);
-
+        console.log(thanaOptions);
         const shopOptions = allShopsJSON?.results?.map((shop) => ({
           key: shop?.id,
           ...shop,
           district: thanaOptions.find((t) => t.id === shop.thana)?.city_name,
         }));
-        return shopOptions;
+        console.log(shopOptions);
+        return { ...allShopsJSON, results: shopOptions };
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -105,8 +110,8 @@ const Shops = () => {
         <Space size="middle">
           <button
             onClick={() => {
-              showModal();
               setSelectedShopId(record.id);
+              showModal();
             }}
           >
             <FaEdit className="cursor-pointer" />
@@ -115,7 +120,7 @@ const Shops = () => {
       ),
     },
   ];
-  if (isLoading || isThanaLoading) {
+  if (isThanaLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <TBSSpin />
@@ -150,10 +155,22 @@ const Shops = () => {
       </div>
       <div>
         <Table
+          loading={isLoading}
           bordered
           columns={columns}
-          dataSource={allShops}
+          dataSource={allShops?.results}
           scroll={{ x: "max-content" }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: allShops?.count || 0,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} orders`,
+            onChange: (newPage, newPageSize) => {
+              setCurrentPage(newPage);
+              setPageSize(newPageSize);
+            },
+          }}
         />
       </div>
 

@@ -38,6 +38,7 @@ const TBSOrderForm = ({
     if (!initialValues) {
       hasLoadedInitialValues.current = false;
       form.resetFields();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedProductsList([]);
       setDeletedProductsList([]);
       setSelectedShopkeeper(null);

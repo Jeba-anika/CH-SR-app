@@ -32,6 +32,7 @@ const useFetchShopDataHandler = ({ shopId, isEdit, setFileList }) => {
                 name: "shop_image",
                 status: "done",
                 originFileObj: shopJSON?.shop_image,
+                url: shopJSON?.shop_image,
               },
             ]);
           }
