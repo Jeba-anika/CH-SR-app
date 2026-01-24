@@ -94,6 +94,8 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
 
   const createOrder = async (payload) => {
+    console.log(payload);
+    console.log(JSON.stringify(payload));
     try {
       setLoading(true);
       const res = await fetch(

@@ -27,10 +27,10 @@ const AddProductSection = ({
     const newItem = {
       product_name: selectedProduct.name,
       product: selectedProduct.value,
-      quantity: form.getFieldValue("quantity"),
-      product_discount: form.getFieldValue("product_discount"),
-      total_price: form.getFieldValue("total_price"),
-      unit_price: selectedProduct?.dp,
+      quantity: Number(form.getFieldValue("quantity")),
+      product_discount: Number(form.getFieldValue("product_discount")),
+      total_price: Number(form.getFieldValue("total_price")),
+      unit_price: Number(selectedProduct?.dp),
     };
     console.log(newItem);
     setSelectedProductsList((prev) => [...prev, newItem]);
@@ -59,8 +59,8 @@ const AddProductSection = ({
               setSelectedProduct(selected);
               form.setFieldsValue({
                 quantity: 1,
-                product_price: selected?.dp || 0,
-                total_price: selected?.dp || 0,
+                product_price: Number(selected?.dp) || 0,
+                total_price: Number(selected?.dp) || 0,
                 product_discount: 0,
               });
               setIsFieldRequired(true);

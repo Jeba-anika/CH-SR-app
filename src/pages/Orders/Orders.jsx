@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Table, Flex, Space, Tag, Spin, Image } from "antd";
+import { Table, Flex, Space, Tag, Spin, Image, Pagination } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
@@ -13,18 +13,20 @@ const Orders = () => {
   const { auth } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: allOrders,
     isLoading,
     refetch: refetchAllOrders,
   } = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", currentPage, pageSize],
     enabled: !!auth?.authToken,
     queryFn: async () => {
       try {
         const res = await fetch(
-          "https://api.erp.seoulsourcing.com/api/per-sr-order-list/",
+          `https://api.erp.seoulsourcing.com/api/per-sr-order-list/?page=${currentPage}&page_size=${pageSize}`,
           {
             method: "GET",
             headers: {
@@ -39,7 +41,7 @@ const Orders = () => {
           key: order?.id,
           ...order,
         }));
-        return orderList;
+        return { results: orderList, ...orders };
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -84,8 +86,8 @@ const Orders = () => {
         <Space size="middle">
           <button
             onClick={() => {
-              showModal();
               setSelectedOrderId(record.id);
+              showModal();
             }}
           >
             <FaEdit className="cursor-pointer" />
@@ -94,13 +96,13 @@ const Orders = () => {
       ),
     },
   ];
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <TBSSpin />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <TBSSpin />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="max-w-full! mx-10">
@@ -129,10 +131,22 @@ const Orders = () => {
       </div>
       <div>
         <Table
+          loading={isLoading}
           bordered
           columns={columns}
-          dataSource={allOrders}
+          dataSource={allOrders?.results}
           scroll={{ x: "max-content" }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: allOrders?.count || 0,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} orders`,
+            onChange: (newPage, newPageSize) => {
+              setCurrentPage(newPage);
+              setPageSize(newPageSize);
+            },
+          }}
         />
       </div>
 

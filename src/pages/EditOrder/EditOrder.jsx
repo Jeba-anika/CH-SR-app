@@ -14,6 +14,7 @@ const EditOrder = ({
 }) => {
   const { auth } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [isInitialValuesLoading, setIsInitialValuesLoading] = useState(false);
 
   const { orderDetails, isOrderDetailsLoading } = useFetchOrderById({
     orderId,
@@ -68,14 +69,16 @@ const EditOrder = ({
   };
   const editOrderBody = (
     <>
-      {isOrderDetailsLoading ? (
+      {isOrderDetailsLoading || isInitialValuesLoading ? (
         <TBSSpin />
       ) : (
         <TBSOrderForm
+          key={orderId}
           mode="edit"
           initialValues={orderDetails}
           onSubmit={updateOrder}
           isSubmitLoading={loading}
+          setIsInitialValuesLoading={setIsInitialValuesLoading}
         />
       )}
     </>

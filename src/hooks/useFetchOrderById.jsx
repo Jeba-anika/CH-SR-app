@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 const useFetchOrderById = ({ orderId }) => {
   const { auth } = useAuth();
   const { data: orderDetails, isLoading: isOrderDetailsLoading } = useQuery({
-    queryKey: ["orderDetails"],
-    enabled: !!auth?.authToken,
+    queryKey: ["orderDetails", orderId],
+    enabled: !!auth?.authToken && !!orderId,
     queryFn: async () => {
       try {
         const res = await fetch(
