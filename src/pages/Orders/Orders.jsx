@@ -8,10 +8,12 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import EditShop from "../EditShop/EditShop";
 import EditOrder from "../EditOrder/EditOrder";
+import OrderDetails from "./OrderDetails";
 
 const Orders = () => {
   const { auth } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -94,6 +96,15 @@ const Orders = () => {
           >
             <FaEdit className="cursor-pointer" />
           </button>
+          <button
+            onClick={() => {
+              setSelectedOrderDetails(record);
+              setSelectedOrderId(record.id);
+              setIsOrderDetailsModalOpen(true);
+            }}
+          >
+            <FaEdit className="cursor-pointer" />
+          </button>
         </Space>
       ),
     },
@@ -158,6 +169,12 @@ const Orders = () => {
         setIsModalOpen={setIsModalOpen}
         isModalOpen={isModalOpen}
         selectedOrderDetails={selectedOrderDetails}
+      />
+      <OrderDetails
+        isModalOpen={isOrderDetailsModalOpen}
+        setIsModalOpen={setIsOrderDetailsModalOpen}
+        orderDetails={selectedOrderDetails}
+        key={selectedOrderId}
       />
     </div>
   );

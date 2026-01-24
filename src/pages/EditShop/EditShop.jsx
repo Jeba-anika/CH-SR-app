@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TBSModal from "../../Components/Shared/TBSModal/TBSModal";
 import TBSShopForm from "../../Components/Shared/TBSShopForm/TBSShopForm";
 import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
-import useFetchShopDataHandler from "../../hooks/useFetchShopDataHandler";
 
 const EditShop = ({
   isModalOpen,
@@ -14,11 +13,23 @@ const EditShop = ({
   const [fileList, setFileList] = useState([]);
   const [isEditShopLoading, setIsEditShopLoading] = useState(false);
   const [selectedThana, setSelectedThana] = useState(null);
-  // const { shopData, isShopLoading } = useFetchShopDataHandler({
-  //   shopId: selectedShopId,
-  //   isEdit: Boolean(selectedShopId),
-  //   setFileList,
-  // });
+
+  useEffect(() => {
+    const setImageFile = () => {
+      if (selectedShop?.shop_image) {
+        setFileList([
+          {
+            uid: "-1",
+            name: "shop_image",
+            status: "done",
+            originFileObj: selectedShop?.shop_image,
+            url: selectedShop?.shop_image,
+          },
+        ]);
+      }
+    };
+    setImageFile();
+  }, [selectedShop, selectedShopId]);
 
   const handleCancel = () => {
     setIsModalOpen(false);
