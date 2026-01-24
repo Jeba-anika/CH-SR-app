@@ -38,7 +38,11 @@ const OrderDetails = ({ orderDetails, isModalOpen, setIsModalOpen }) => {
   ];
   const orderDetailsBody = (
     <>
-      <div></div>
+      <div>Shop Name: {orderDetails.shop_name}</div>
+      <div>Customer Name: {orderDetails.shopper_name}</div>
+      <div>Total Quantity: {orderDetails?.total_quantity}</div>
+      <div>Total Discount: {orderDetails?.total_discount_amount}</div>
+      <div>Total Amount: {orderDetails.total_amount}</div>
       <div className="mt-10">
         <Table
           bordered

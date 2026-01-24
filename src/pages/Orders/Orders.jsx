@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
-import { PlusOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import EditShop from "../EditShop/EditShop";
 import EditOrder from "../EditOrder/EditOrder";
@@ -91,16 +91,16 @@ const Orders = () => {
             onClick={() => {
               setSelectedOrderDetails(record);
               setSelectedOrderId(record.id);
-              showModal();
+              setIsOrderDetailsModalOpen(true);
             }}
           >
-            <FaEdit className="cursor-pointer" />
+            <EyeOutlined className="cursor-pointer " color="#FAD443" />
           </button>
           <button
             onClick={() => {
               setSelectedOrderDetails(record);
               setSelectedOrderId(record.id);
-              setIsOrderDetailsModalOpen(true);
+              showModal();
             }}
           >
             <FaEdit className="cursor-pointer" />
