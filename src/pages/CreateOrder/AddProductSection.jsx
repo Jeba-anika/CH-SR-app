@@ -69,6 +69,7 @@ const AddProductSection = ({
             className="border! border-[#F9CF2F]!"
             virtual={true} // Enable virtual scrolling for better performance
             listHeight={256}
+            getPopupContainer={() => document.body}
           />
         </Form.Item>
         <div className="grid grid-cols-2 gap-4 w-full">
