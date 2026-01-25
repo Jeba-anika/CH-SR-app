@@ -193,6 +193,10 @@ const TBSShopForm = ({
             }}
             options={thanaOptions}
             className="border! border-[#F9CF2F]!"
+            virtual={false}
+            listHeight={256}
+            getPopupContainer={(triggerNode) => triggerNode.parentElement}
+            dropdownStyle={{ overflowY: "auto" }}
           />
         </Form.Item>
         <TBSFormItemField

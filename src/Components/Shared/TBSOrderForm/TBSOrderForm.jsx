@@ -160,7 +160,6 @@ const TBSOrderForm = ({
       {/* SHOP */}
       <Form.Item label="Shop Name" name="shopper" required>
         <Select
-          getPopupContainer={(triggerNode) => triggerNode.parentElement}
           placeholder={"Search and select shop"}
           options={shopOptions}
           showSearch
@@ -177,6 +176,10 @@ const TBSOrderForm = ({
               mobile_number: selected?.mobile_number,
             });
           }}
+          virtual={false}
+          listHeight={256}
+          getPopupContainer={(triggerNode) => triggerNode.parentElement}
+          dropdownStyle={{ overflowY: "auto" }}
         />
       </Form.Item>
 
