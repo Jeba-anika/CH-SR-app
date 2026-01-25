@@ -1,20 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
-import { Table, Flex, Space, Tag, Spin } from "antd";
+import { Table, Flex, Space, Tag, Spin, Image } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import TBSSpin from "../../Components/Shared/TBSSpin/TBSSpin";
 import { PlusOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import EditShop from "../EditShop/EditShop";
+import useThanaHandler from "../../hooks/useThanaHandler";
 
 const Shops = () => {
   const { auth } = useAuth();
-  const { data: allShops, isLoading } = useQuery({
-    queryKey: ["shops"],
-    enabled: !!auth?.authToken,
+  const { thanaOptions, isThanaLoading } = useThanaHandler();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedShop, setSelectedShop] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const {
+    data: allShops,
+    isLoading,
+    refetch: refetchAllShops,
+  } = useQuery({
+    queryKey: ["shops", currentPage, pageSize, thanaOptions],
+    keepPreviousData: true,
+    enabled: !!auth?.authToken && !!thanaOptions?.length,
+
     queryFn: async () => {
       try {
         const shopsRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/sr-shop-list/",
+          `https://api.erp.seoulsourcing.com/api/sr-shop-list/?page=${currentPage}&page_size=${pageSize}`,
           {
             method: "GET",
             headers: {
@@ -23,18 +39,45 @@ const Shops = () => {
           },
         );
         const allShopsJSON = await shopsRes.json();
+        console.log(allShopsJSON);
+        console.log(thanaOptions);
         const shopOptions = allShopsJSON?.results?.map((shop) => ({
           key: shop?.id,
           ...shop,
+          district: thanaOptions.find((t) => t.id === shop.thana)?.city_name,
         }));
-        return shopOptions;
+        console.log(shopOptions);
+        return { ...allShopsJSON, results: shopOptions };
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     },
   });
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
   const columns = [
+    {
+      title: "Image",
+      dataIndex: "shop_image",
+      key: "shop_image",
+      width: 80,
+      render: (image) => (
+        <Image
+          width={50}
+          height={50}
+          src={image || "/placeholder-image.png"}
+          alt="Shop"
+          style={{ objectFit: "cover", borderRadius: "4px" }}
+          fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+          preview={{
+            mask: "Preview",
+          }}
+        />
+      ),
+    },
     {
       title: "Shop Name",
       dataIndex: "shop_name",
@@ -66,14 +109,21 @@ const Shops = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/edit-shop/${record.key}`}>
+          <button
+            onClick={() => {
+              setSelectedShop(record);
+              setSelectedShopId(record.id);
+
+              showModal();
+            }}
+          >
             <FaEdit className="cursor-pointer" />
-          </Link>
+          </button>
         </Space>
       ),
     },
   ];
-  if (isLoading) {
+  if (isThanaLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <TBSSpin />
@@ -108,12 +158,33 @@ const Shops = () => {
       </div>
       <div>
         <Table
+          loading={isLoading}
           bordered
           columns={columns}
-          dataSource={allShops}
+          dataSource={allShops?.results}
           scroll={{ x: "max-content" }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: allShops?.count || 0,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} orders`,
+            onChange: (newPage, newPageSize) => {
+              setCurrentPage(newPage);
+              setPageSize(newPageSize);
+            },
+          }}
         />
       </div>
+
+      {/* {EDIT SHOP} */}
+      <EditShop
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        selectedShopId={selectedShopId}
+        refetchAllShops={refetchAllShops}
+        selectedShop={selectedShop}
+      />
     </div>
   );
 };

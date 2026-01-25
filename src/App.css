@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "daisyui";
 
 @layer components {
   .custom-input {

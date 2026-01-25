@@ -1,340 +1,234 @@
-import { useEffect, useState } from "react";
-import TBSInput from "../../Components/Shared/TBSInput/TBSInput";
-import { useForm } from "react-hook-form";
-import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
-import TBSDropdownSelect from "../../Components/Shared/TBSDropdownSelect/TBSDropdownSelect";
-import { MdDelete } from "react-icons/md";
-import { Form, Select, Space, Table } from "antd";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { Form, message, Select, Space, Table } from "antd";
+
 import { useAuth } from "../../hooks/useAuth";
-import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 
-const PRODUCT_FIELDS = [
-  "quantity",
-  "discount",
-  "total_price",
-  "amount",
-  "product_name",
-];
+import { useNavigate } from "react-router";
+import TBSOrderForm from "../../Components/Shared/TBSOrderForm/TBSOrderForm";
+
 const CreateOrder = () => {
+  // const { auth } = useAuth();
+  // const [form] = Form.useForm();
+  // const { shopOptions } = useFetchAllShopsOfSRData();
+  // const { thanaOptions } = useThanaHandler();
+
+  // const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
+
+  // const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // const [selectedProductsList, setSelectedProductsList] = useState([]);
+  // const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+  // const navigate = useNavigate();
+
+  // const onDeleteItems = (productId) => {
+  //   const updatedList = selectedProductsList.filter(
+  //     (product) => product.product_id !== productId,
+  //   );
+  //   console.log(updatedList);
+
+  //   setSelectedProductsList(updatedList);
+  // };
+
+  // const onCreateOrder = async (data) => {
+  //   console.log(data);
+  //   const total_amount = selectedProductsList.reduce(
+  //     (sum, item) => sum + Number(item.total_price || 0),
+  //     0,
+  //   );
+  //   const total_discount_amount = selectedProductsList.reduce(
+  //     (sum, item) => sum + Number(item.product_discount || 0),
+  //     0,
+  //   );
+  //   const products = selectedProductsList.map((product) => ({
+  //     product: product.product,
+  //     quantity: product?.quantity,
+  //     unit_price: product?.unit_price,
+  //     total_price: Number(product?.total_price),
+  //     product_discount: Number(product?.product_discount),
+  //   }));
+  //   const orderPayload = {
+  //     shopper: data?.shopper,
+  //     //address: selectedShopkeeper?.thana,
+  //     address: 4,
+  //     total_amount,
+  //     total_discount_amount,
+  //     payment_option: "Cash",
+  //     products,
+  //     note: "Unavailable",
+  //   };
+  //   console.log(orderPayload);
+  //   try {
+  //     setIsSubmitLoading(true);
+  //     const res = await fetch(
+  //       "https://api.erp.seoulsourcing.com/api/shop-order/",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           Authorization: `Bearer ${auth?.authToken}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(orderPayload),
+  //       },
+  //     );
+  //     console.log(res);
+  //     const data = await res.json();
+  //     console.log(data);
+  //     if (res.status === 201 || res.ok) {
+  //       setIsSubmitLoading(false);
+  //       message.success(
+  //         `${data?.message ? data.message : "Order Created Successfully!"}`,
+  //       );
+  //       navigate("/orders");
+  //     } else {
+  //       setIsSubmitLoading(false);
+  //       throw new Error("Error creating Order!", data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error.message);
+  //     message.error("Error creating Order!");
+  //   }
+  // };
   const { auth } = useAuth();
-  const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const [selectedShopkeeper, setSelectedShopkeeper] = useState(null);
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const [selectedProductsList, setSelectedProductsList] = useState([]);
-
-  const { data: shopOptions, isLoading: isShopOptionsLoading } = useQuery({
-    queryKey: ["shopOptions"],
-    enabled: !!auth?.authToken,
-    queryFn: async () => {
-      try {
-        const shopRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/sr-shop-list",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${auth?.authToken}`,
-            },
+  const createOrder = async (payload) => {
+    console.log(payload);
+    console.log(JSON.stringify(payload));
+    try {
+      setLoading(true);
+      const res = await fetch(
+        "https://api.erp.seoulsourcing.com/api/shop-order/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${auth?.authToken}`,
+            "Content-Type": "application/json",
           },
-        );
-        const shopJSON = await shopRes.json();
-        const shopOptions = shopJSON?.results?.map((shop) => ({
-          value: shop.id,
-          label: shop.shop_name,
-          ...shop,
-        }));
+          body: JSON.stringify(payload),
+        },
+      );
 
-        return shopOptions;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    },
-  });
+      const data = await res.json();
 
-  const { data: allProducts, isLoading: isProductsLoading } = useQuery({
-    queryKey: ["allProducts"],
-    enabled: !!auth?.authToken,
-    queryFn: async () => {
-      try {
-        const shopRes = await fetch(
-          "https://api.erp.seoulsourcing.com/api/products",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${auth?.authToken}`,
-            },
-          },
-        );
-        const productsJSON = await shopRes.json();
-        console.log(productsJSON);
-        const productsOptions = productsJSON?.results.map((product) => ({
-          value: product?.id,
-          label: product?.name,
-          ...product,
-        }));
+      if (!res.ok) throw new Error();
 
-        return productsOptions;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    },
-  });
-
-  const onAddItemBtnClick = () => {
-    const newItem = {
-      ...selectedProduct,
-      quantity: form.getFieldValue("quantity"),
-      discount: form.getFieldValue("discount"),
-      total_amount: form.getFieldValue("amount"),
-      unit_price: selectedProduct?.price,
-    };
-    setSelectedProductsList((prev) => [...prev, newItem]);
-
-    setSelectedProduct(null);
-    form.resetFields(PRODUCT_FIELDS);
+      message.success(data?.message || "Order created!");
+      navigate("/orders");
+    } catch {
+      message.error("Failed to create order");
+    } finally {
+      setLoading(false);
+    }
   };
-  const onDeleteItems = (productId) => {
-    const updatedList = selectedProductsList.filter(
-      (product) => product.product_id !== productId,
-    );
-    console.log(updatedList);
-
-    setSelectedProductsList(updatedList);
-  };
-  const onCreateOrder = (data) => {
-    console.log(data);
-    console.log(selectedProductsList);
-    const products = selectedProductsList.map((product) => ({
-      product: product.product_id,
-      quantity: product?.quantity,
-      unit_price: product?.price,
-      total_price: product?.total_amount,
-      product_discount: product?.discount,
-    }));
-    const orderPayload = {
-      shopper: data?.shopper,
-      address: selectedShopkeeper?.thana,
-      total_amount: 0,
-      total_discount_amount: 0,
-      payment_option: "Cash",
-      products,
-    };
-  };
-
-  const columns = [
-    {
-      title: "SL No",
-      dataIndex: "sl_no",
-      key: "sl_no",
-      render: (_, record, index) => <>{index + 1}</>,
-    },
-    {
-      title: "Item Name",
-      dataIndex: "product_name",
-      key: "name",
-    },
-    {
-      title: "Qty",
-      dataIndex: "quantity",
-      key: "quantity",
-    },
-    {
-      title: "Unit Price",
-      key: "unit_price",
-      dataIndex: "unit_price",
-    },
-    {
-      title: "Discount",
-      key: "discount",
-      dataIndex: "discount",
-    },
-    {
-      title: "Price",
-      key: "total_amount",
-      dataIndex: "total_amount",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_) => {
-        return (
-          <MdDelete
-            onClick={() => onDeleteItems(_.product_id)}
-            className="cursor-pointer text-red-500"
-          />
-        );
-      },
-    },
-  ];
 
   return (
-    <div className="m-10">
-      <Form
-        form={form}
-        name="login"
-        onFinish={onCreateOrder}
-        autoComplete="off"
-        onValuesChange={(changedValues, allValues) => {
-          if ("quantity" in changedValues) {
-            const quantity = Number(allValues.quantity || 0);
-            const unitPrice = selectedProduct?.price || 0;
+    // <div className="m-10">
+    //   <Form
+    //     form={form}
+    //     name="login"
+    //     onFinish={onCreateOrder}
+    //     autoComplete="off"
+    //     scrollToFirstError={{ behavior: "instant", block: "end", focus: true }}
+    //     onValuesChange={(changedValues, allValues) => {
+    //       console.log(allValues, changedValues);
+    //       console.log(selectedProduct);
+    //       if ("quantity" in changedValues) {
+    //         const quantity = Number(allValues.quantity || 0);
+    //         const unitPrice = selectedProduct?.dp || 0;
+    //         const discountValue = Number(allValues?.product_discount);
 
-            form.setFieldsValue({
-              total_price: (quantity * unitPrice).toFixed(2),
-              amount: (
-                quantity * unitPrice -
-                (allValues.discount || 0)
-              ).toFixed(2),
-            });
-          }
-          if ("discount" in changedValues) {
-            const discount = Number(allValues.discount || 0);
-            const discountedPrice = allValues.total_price - discount;
-            form.setFieldsValue({
-              amount: discountedPrice,
-            });
-          }
-        }}
-      >
-        <Form.Item
-          layout="vertical"
-          label="Shop Name"
-          name={"shopper"}
-          required={true}
-        >
-          <Select
-            showSearch={{ optionFilterProp: "label" }}
-            placeholder="Search and select shop"
-            onChange={(value) => {
-              const selected = shopOptions.find((s) => s.id === value);
-              setSelectedShopkeeper(selected);
-              form.setFieldsValue({
-                name: selected?.name,
-                mobile_number: selected?.mobile_number,
-              });
-            }}
-            options={shopOptions}
-            className="border! border-[#F9CF2F]!"
-          />
-        </Form.Item>
-        <TBSFormItemField
-          type={"text"}
-          label={"Customer Name"}
-          name={"name"}
-          isDisabled={true}
-          placeholder={"Customer Name"}
-        />
-        <TBSFormItemField
-          type={"text"}
-          label={"Mobile Number"}
-          name={"mobile_number"}
-          isDisabled={true}
-          placeholder={"Mobile Number"}
-        />
-        {selectedShopkeeper && (
-          <div className="grid grid-cols-4 gap-2">
-            <div className="col-span-1">
-              Thana: {selectedShopkeeper?.thana_name}
-            </div>
-            <div className="col-span-1">
-              District: {selectedShopkeeper?.district}
-            </div>
-          </div>
-        )}
-        <div>
-          {/* Order Here */}
-          <h3 className="text-center text-2xl">Order Here</h3>
-          <div className="grid grid-cols-5 gap-4 w-full">
-            <div className="col-span-3">
-              <Form.Item
-                layout="vertical"
-                label="Product name"
-                name={"product_name"}
-                required={true}
-              >
-                <Select
-                  showSearch={{ optionFilterProp: "label" }}
-                  placeholder="Search and select product"
-                  onChange={(value) => {
-                    const selected = allProducts.find((s) => s.id === value);
-                    setSelectedProduct(selected);
-                    form.setFieldsValue({
-                      quantity: 1,
-                      total_price: selected?.price || 0,
-                      amount: selected?.price || 0,
-                      discount: 0,
-                    });
-                  }}
-                  options={allProducts}
-                  className="border! border-[#F9CF2F]!"
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <TBSFormItemField
-                type={"number"}
-                label={
-                  <>
-                    <div className="text-red-600">* </div>Quantity
-                  </>
-                }
-                name={"quantity"}
-                isDisabled={false}
-              />
-            </div>
-            <div className="">
-              <TBSFormItemField
-                type={"text"}
-                label={"Price"}
-                name={"total_price"}
-                isDisabled={true}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center gap-4">
-          <div className="w-1/2">
-            <TBSFormItemField
-              type={"number"}
-              label={"Discount"}
-              name={"discount"}
-              isDisabled={false}
-            />
-          </div>
-          <div className="w-1/2">
-            <TBSFormItemField
-              type={"number"}
-              label={"Total Amount"}
-              name={"amount"}
-              isDisabled={true}
-            />
-          </div>
-        </div>
-        <TBSButton
-          onClickFn={() => onAddItemBtnClick()}
-          text={"Add Item"}
-          style={"w-full "}
-          isDisabled={!selectedProduct}
-        />
-        <div className="mt-10">
-          <Table
-            bordered
-            columns={columns}
-            dataSource={selectedProductsList}
-            scroll={{ x: "max-content" }}
-          />
-        </div>
+    //         form.setFieldsValue({
+    //           product_price: unitPrice * quantity || 0,
+    //           total_price: (
+    //             quantity * unitPrice -
+    //             (discountValue || 0)
+    //           ).toFixed(2),
+    //         });
+    //       }
+    //       if ("product_discount" in changedValues) {
+    //         const discount = Number(allValues.product_discount || 0);
+    //         const discountedPrice = allValues.product_price - discount;
+    //         console.log(discount);
+    //         form.setFieldsValue({
+    //           total_price: discountedPrice,
+    //         });
+    //       }
+    //     }}
+    //   >
+    //     <Form.Item
+    //       layout="vertical"
+    //       label="Shop Name"
+    //       name={"shopper"}
+    //       required={true}
+    //     >
+    //       <Select
+    //         showSearch={{ optionFilterProp: "label" }}
+    //         placeholder="Search and select shop"
+    //         onChange={(value) => {
+    //           const selected = shopOptions.find((s) => s.id === value);
 
-        <TBSButton
-          onClickFn={() => onCreateOrder()}
-          text={"Create Order"}
-          btnType={"submit"}
-          style={"w-full"}
-        />
-      </Form>
+    //           const district = thanaOptions?.find(
+    //             (thana) => thana.id === selected?.thana,
+    //           )?.city_name;
+    //           const shopDetails = { ...selected, district };
+    //           setSelectedShopkeeper(shopDetails);
+    //           console.log(shopDetails);
+    //           form.setFieldsValue({
+    //             name: selected?.name,
+    //             mobile_number: selected?.mobile_number,
+    //           });
+    //         }}
+    //         options={shopOptions}
+    //         className="border! border-[#F9CF2F]!"
+    //       />
+    //     </Form.Item>
+    //     <TBSFormItemField
+    //       type={"text"}
+    //       label={"Customer Name"}
+    //       name={"name"}
+    //       isDisabled={true}
+    //       placeholder={"Customer Name"}
+    //     />
+    //     <TBSFormItemField
+    //       type={"text"}
+    //       label={"Mobile Number"}
+    //       name={"mobile_number"}
+    //       isDisabled={true}
+    //       placeholder={"Mobile Number"}
+    //     />
+    //     {selectedShopkeeper && (
+    //       <div className="grid grid-cols-4 gap-2">
+    //         <div className="col-span-2">
+    //           Thana: {selectedShopkeeper?.thana_name}
+    //         </div>
+    //         <div className="col-span-2">
+    //           District: {selectedShopkeeper?.district}
+    //         </div>
+    //       </div>
+    //     )}
+
+    //     <AddProductSection
+    //       selectedProduct={selectedProduct}
+    //       setSelectedProduct={setSelectedProduct}
+    //       setSelectedProductsList={setSelectedProductsList}
+    //       form={form}
+    //     />
+    //     <ProductListSection
+    //       onDeleteItems={onDeleteItems}
+    //       selectedProductsList={selectedProductsList}
+    //     />
+    //     <TBSButton
+    //       text={"Create Order"}
+    //       btnType={"submit"}
+    //       style={"w-full"}
+    //       isLoading={isSubmitLoading}
+    //     />
+    //   </Form>
+    // </div>
+    <div className="m-4">
+      <TBSOrderForm onSubmit={createOrder} isSubmitLoading={loading} />
     </div>
   );
 };
