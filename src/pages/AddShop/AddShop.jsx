@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { Flex, Form, Input, message, Select } from "antd";
-=======
-import { Flex, Form, Input, Select } from "antd";
->>>>>>> 3f4606cd987c54a4191f7a680f446219872cef74
 import React, { useState } from "react";
 import TBSFormItemField from "../../Components/Shared/TBSFormItemField/TBSFormItemField";
 import TextArea from "antd/es/input/TextArea";
