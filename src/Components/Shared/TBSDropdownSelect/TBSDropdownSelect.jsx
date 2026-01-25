@@ -21,6 +21,7 @@ const TBSDropdownSelect = ({
         isSearchable
         className="react-select-container"
         classNamePrefix="react-select"
+        getPopupContainer={(triggerNode) => triggerNode.parentElement}
       />
     </div>
   );
