@@ -3,10 +3,6 @@ import { Link } from "react-router";
 import { FaShoppingCart, FaStore } from "react-icons/fa";
 const Home = () => {
   return (
-    // <div>
-    //   <Link to={"/orders"}>View Orders</Link>
-    //   <Link to={"/shops"}>View Shops</Link>
-    // </div>
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}

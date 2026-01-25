@@ -7,7 +7,7 @@ import TBSButton from "../../Components/Shared/TBSButton/TBSButton";
 import TBSLogo from "../../assets/TBS logo.png";
 
 const Login = () => {
-  const { auth, setAuth } = useAuth();
+  const { setAuth } = useAuth();
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const navigate = useNavigate();
   const onSubmit = async (values) => {

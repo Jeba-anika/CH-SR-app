@@ -1,5 +1,4 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import CHLogo from "../../assets/CHARDIKE.png";
 import TBSLogo from "../../assets/TBS logo.png";
 import { useState } from "react";
 import { Header } from "antd/es/layout/layout";

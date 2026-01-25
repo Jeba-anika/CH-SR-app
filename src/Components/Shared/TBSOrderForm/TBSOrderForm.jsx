@@ -81,7 +81,7 @@ const TBSOrderForm = ({
 
     hasLoadedInitialValues.current = true;
     setIsInitialValuesLoading(false);
-  }, [initialValues, mode]); // ❗ form REMOVED
+  }, [initialValues, mode]); //
 
   const handleSubmit = (values) => {
     if (!selectedProductsList || selectedProductsList.length === 0) {
@@ -160,6 +160,7 @@ const TBSOrderForm = ({
       {/* SHOP */}
       <Form.Item label="Shop Name" name="shopper" required>
         <Select
+          getPopupContainer={(triggerNode) => triggerNode.parentElement}
           placeholder={"Search and select shop"}
           options={shopOptions}
           showSearch

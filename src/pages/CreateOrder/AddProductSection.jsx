@@ -67,6 +67,7 @@ const AddProductSection = ({
             }}
             options={allProducts}
             className="border! border-[#F9CF2F]!"
+            getPopupContainer={(triggerNode) => triggerNode.parentElement}
           />
         </Form.Item>
         <div className="grid grid-cols-2 gap-4 w-full">

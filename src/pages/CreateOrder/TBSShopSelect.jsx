@@ -1,11 +1,5 @@
 import Select from "react-select";
 
-// const shopkeepers = [
-//   { value: "1", label: "Shop A" },
-//   { value: "2", label: "Shop B" },
-//   { value: "3", label: "Shop C" },
-// ];
-
 export function TBSShopSelect({
   allShops,
   selectedShopkeeper,
