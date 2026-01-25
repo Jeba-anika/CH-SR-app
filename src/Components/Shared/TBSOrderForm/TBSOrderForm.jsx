@@ -145,7 +145,7 @@ const TBSOrderForm = ({
   if (isShopOptionsLoading || isThanaLoading) {
     return (
       <div className="h-screen w-full text-center">
-        <TBSSpin />;
+        <TBSSpin />
       </div>
     );
   }

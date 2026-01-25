@@ -67,7 +67,8 @@ const AddProductSection = ({
             }}
             options={allProducts}
             className="border! border-[#F9CF2F]!"
-            getPopupContainer={(triggerNode) => triggerNode.parentElement}
+            virtual={true} // Enable virtual scrolling for better performance
+            listHeight={256}
           />
         </Form.Item>
         <div className="grid grid-cols-2 gap-4 w-full">
